@@ -3,7 +3,7 @@
  * Example strategy implementation demonstrating proper structure
  */
 
-import { Strategy, Signal, PriceData } from '../types/index.js';
+import type { Strategy, Signal, PriceData } from '../types/index.js';
 
 export class SimpleMovingAverageStrategy implements Strategy {
   public readonly name = 'Simple Moving Average Crossover';

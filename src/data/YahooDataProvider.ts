@@ -3,7 +3,7 @@
  * Fetches historical price data from Yahoo Finance API
  */
 
-import { DataProvider, PriceData } from '../types/index.js';
+import type { DataProvider, PriceData } from '../types/index.js';
 
 export class YahooDataProvider implements DataProvider {
   public readonly name = 'Yahoo Finance';
