@@ -4,6 +4,7 @@
  */
 
 export interface PriceData {
+  readonly symbol: string;
   readonly timestamp: Date;
   readonly open: number;
   readonly high: number;

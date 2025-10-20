@@ -89,6 +89,7 @@ function createMockData(length: number): PriceData[] {
   for (let i = 0; i < length; i++) {
     data.push({
       timestamp: new Date(2023, 0, i + 1),
+      symbol: 'AAPL',
       open: basePrice + i,
       high: basePrice + i + 2,
       low: basePrice + i - 2,
@@ -122,6 +123,7 @@ function createMockDataWithCrossover(type: 'bullish' | 'bearish'): PriceData[] {
     
     data.push({
       timestamp: new Date(2023, 0, i + 1),
+      symbol: 'AAPL',
       open: price,
       high: price + 2,
       low: price - 2,

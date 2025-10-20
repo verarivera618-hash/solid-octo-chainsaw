@@ -110,6 +110,7 @@ export class TradeStationDataProvider implements DataProvider {
 
   private convertTradeStationData(bars: any[]): PriceData[] {
     return bars.map(bar => ({
+      symbol: bar.Symbol || 'UNKNOWN',
       timestamp: new Date(bar.Time),
       open: bar.Open,
       high: bar.High,
@@ -131,6 +132,7 @@ export class TradeStationDataProvider implements DataProvider {
         price = price * (1 + change);
         
         data.push({
+          symbol,
           timestamp: new Date(currentDate),
           open: Math.round(price * 0.99 * 100) / 100,
           high: Math.round(price * 1.01 * 100) / 100,

@@ -180,10 +180,10 @@ export class LiveTradingOrchestrator {
         if (broker === 'alpaca' && executor.getAccountInfo) {
           status[broker] = await executor.getAccountInfo();
         }
-      } catch (error) {
-        console.error(`Error getting account status for ${broker}:`, error);
-        status[broker] = { error: error.message };
-      }
+    } catch (error: any) {
+      console.error(`Error getting account status for ${broker}:`, error);
+      status[broker] = { error: error.message };
+    }
     }
 
     return status;

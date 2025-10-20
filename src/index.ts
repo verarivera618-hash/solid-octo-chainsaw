@@ -1,50 +1,63 @@
 /**
- * Main entry point for the backtesting framework
- * Exports all public APIs and provides high-level usage examples
+ * Main entry point with environment configuration
  */
 
-export { BacktestEngine } from './core/BacktestEngine.js';
-export { Portfolio } from './core/Portfolio.js';
-export { TradeExecutor } from './core/TradeExecutor.js';
-export { PerformanceAnalyzer } from './analysis/PerformanceAnalyzer.js';
-export { SimpleMovingAverageStrategy } from './strategies/SimpleMovingAverageStrategy.js';
-export { YahooDataProvider } from './data/YahooDataProvider.js';
-export { config, getConfig } from './config/index.js';
+import 'dotenv/config';
+import { LiveTradingOrchestrator } from './integrations/LiveTradingOrchestrator.js';
+import { SimpleMovingAverageStrategy } from './strategies/SimpleMovingAverageStrategy.js';
 
-// Re-export all types
-export * from './types/index.js';
+// Load configuration from environment variables
+const alpacaConfig = {
+  apiKey: process.env['ALPACA_API_KEY']!,
+  secretKey: process.env['ALPACA_SECRET_KEY']!,
+  baseUrl: process.env['ALPACA_BASE_URL'] || 'https://paper-api.alpaca.markets',
+  dataUrl: process.env['ALPACA_DATA_URL'] || 'https://data.alpaca.markets',
+  paperTrading: process.env['ALPACA_PAPER_TRADING'] === 'true'
+};
 
-// Example usage function
-export async function runExampleBacktest(): Promise<void> {
-  const { BacktestEngine } = await import('./core/BacktestEngine.js');
-  const { SimpleMovingAverageStrategy } = await import('./strategies/SimpleMovingAverageStrategy.js');
-  const { YahooDataProvider } = await import('./data/YahooDataProvider.js');
-  const { getConfig } = await import('./config/index.js');
-
-  const config = getConfig();
-  const engine = new BacktestEngine(config.backtesting.defaultConfig);
-  const strategy = new SimpleMovingAverageStrategy(20, 50, ['AAPL', 'GOOGL']);
-  const dataProvider = new YahooDataProvider();
-
-  // Fetch data
-  const marketData = new Map();
-  for (const symbol of config.backtesting.defaultConfig.symbols) {
-    const data = await dataProvider.getPriceData(
-      symbol,
-      config.backtesting.defaultConfig.startDate,
-      config.backtesting.defaultConfig.endDate
-    );
-    marketData.set(symbol, data);
+const liveTradingConfig = {
+  alpaca: alpacaConfig,
+  riskManagement: {
+    maxPositionSize: parseInt(process.env['MAX_POSITION_SIZE'] || '1000'),
+    maxDailyLoss: parseInt(process.env['MAX_DAILY_LOSS'] || '500'),
+    stopLossPercentage: parseFloat(process.env['STOP_LOSS_PERCENTAGE'] || '0.02'),
+    maxOpenPositions: 5
   }
+};
 
-  // Run backtest
-  const result = await engine.runBacktest(strategy, marketData);
+async function main() {
+  console.log('🚀 Starting Trading System...');
+  console.log(`📊 Paper Trading: ${alpacaConfig.paperTrading ? 'ON' : 'OFF'}`);
   
-  console.log('Backtest Results:');
-  console.log(`Total Return: ${(result.totalReturn * 100).toFixed(2)}%`);
-  console.log(`Annualized Return: ${(result.annualizedReturn * 100).toFixed(2)}%`);
-  console.log(`Max Drawdown: ${(result.maxDrawdown * 100).toFixed(2)}%`);
-  console.log(`Sharpe Ratio: ${result.sharpeRatio.toFixed(2)}`);
-  console.log(`Win Rate: ${(result.winRate * 100).toFixed(2)}%`);
-  console.log(`Total Trades: ${result.totalTrades}`);
+  try {
+    const orchestrator = new LiveTradingOrchestrator(liveTradingConfig);
+    
+    // Register strategies
+    const smaStrategy = new SimpleMovingAverageStrategy(10, 20, ['AAPL', 'GOOGL']);
+    
+    orchestrator.registerStrategy('sma_crossover', smaStrategy);
+    
+    // Test connection
+    const accountStatus = await orchestrator.getAccountStatus();
+    console.log('✅ Account Status:', accountStatus);
+    
+    // Start trading
+    await orchestrator.startTrading();
+    
+    console.log('🔄 Trading system is running...');
+    console.log('Press Ctrl+C to stop');
+    
+    // Keep running
+    process.on('SIGINT', async () => {
+      console.log('\n🛑 Shutting down...');
+      await orchestrator.stopTrading();
+      process.exit(0);
+    });
+    
+  } catch (error) {
+    console.error('❌ Error:', error);
+    process.exit(1);
+  }
 }
+
+main().catch(console.error);

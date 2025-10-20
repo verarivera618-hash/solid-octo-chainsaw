@@ -50,10 +50,15 @@ export class PocketOptionDataProvider implements DataProvider {
   async isAvailable(): Promise<boolean> {
     try {
       // Check if Pocket Option API is accessible
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+      
       const response = await fetch(`${this.config.baseUrl}/api/v1/status`, {
         method: 'GET',
-        timeout: this.config.timeout
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       return response.ok;
     } catch {
       // If API is not available, we can still work with mock data
@@ -79,6 +84,7 @@ export class PocketOptionDataProvider implements DataProvider {
             price = Math.max(0.1, Math.min(0.9, price + change));
             
             data.push({
+              symbol,
               timestamp,
               open: Math.round(price * 1000) / 1000,
               high: Math.round((price + Math.random() * 0.05) * 1000) / 1000,

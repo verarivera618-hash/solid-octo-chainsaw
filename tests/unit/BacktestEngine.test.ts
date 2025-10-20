@@ -68,6 +68,7 @@ function createMockMarketData(): Map<string, PriceData[]> {
     date.setDate(date.getDate() + i);
     
     data.push({
+      symbol: 'AAPL',
       timestamp: date,
       open: 100 + i,
       high: 105 + i,
