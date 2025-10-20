@@ -3,7 +3,7 @@
  * Provides comprehensive backtesting performance evaluation
  */
 
-import { BacktestResult, Trade } from '../types/index.js';
+import type { BacktestResult, Trade } from '../types/index.js';
 
 export class PerformanceAnalyzer {
   /**
@@ -39,23 +39,24 @@ export class PerformanceAnalyzer {
   }
 
   private calculateTotalReturn(equityCurve: Array<{ timestamp: Date; value: number }>): number {
-    const initialValue = equityCurve[0].value;
-    const finalValue = equityCurve[equityCurve.length - 1].value;
+    const initialValue = equityCurve[0]!.value;
+    const finalValue = equityCurve[equityCurve.length - 1]!.value;
     return (finalValue - initialValue) / initialValue;
   }
 
   private calculateAnnualizedReturn(equityCurve: Array<{ timestamp: Date; value: number }>): number {
+    if (equityCurve.length < 2) return 0;
     const totalReturn = this.calculateTotalReturn(equityCurve);
-    const startDate = equityCurve[0].timestamp;
-    const endDate = equityCurve[equityCurve.length - 1].timestamp;
+    const startDate = equityCurve[0]!.timestamp;
+    const endDate = equityCurve[equityCurve.length - 1]!.timestamp;
     const years = (endDate.getTime() - startDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
-    
+    if (years <= 0) return 0;
     return Math.pow(1 + totalReturn, 1 / years) - 1;
   }
 
   private calculateMaxDrawdown(equityCurve: Array<{ timestamp: Date; value: number }>): number {
     let maxDrawdown = 0;
-    let peak = equityCurve[0].value;
+    let peak = equityCurve[0]!.value;
 
     for (const point of equityCurve) {
       if (point.value > peak) {
@@ -72,6 +73,7 @@ export class PerformanceAnalyzer {
     if (equityCurve.length < 2) return 0;
 
     const returns = this.calculateReturns(equityCurve);
+    if (returns.length === 0) return 0;
     const averageReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length;
     const variance = returns.reduce((sum, ret) => sum + Math.pow(ret - averageReturn, 2), 0) / returns.length;
     const standardDeviation = Math.sqrt(variance);
@@ -83,8 +85,8 @@ export class PerformanceAnalyzer {
     const returns: number[] = [];
     
     for (let i = 1; i < equityCurve.length; i++) {
-      const currentValue = equityCurve[i].value;
-      const previousValue = equityCurve[i - 1].value;
+      const currentValue = equityCurve[i]!.value;
+      const previousValue = equityCurve[i - 1]!.value;
       const returnValue = (currentValue - previousValue) / previousValue;
       returns.push(returnValue);
     }
@@ -160,8 +162,7 @@ export class PerformanceAnalyzer {
   } {
     // This is a simplified calculation
     // In a real implementation, you'd need to track entry/exit pairs
-    const buyTrades = trades.filter(t => t.side === 'buy');
-    const sellTrades = trades.filter(t => t.side === 'sell');
+    // NOTE: In a full implementation, we'd pair buys and sells to compute P&L per trade
     
     // For now, return basic stats
     return {

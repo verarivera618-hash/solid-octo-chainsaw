@@ -3,7 +3,7 @@
  * Centralized configuration with environment-specific overrides
  */
 
-import { BacktestConfig } from '../types/index.js';
+import type { BacktestConfig } from '../types/index.js';
 
 export interface AppConfig {
   readonly database: {
@@ -26,7 +26,7 @@ export interface AppConfig {
 
 const defaultConfig: AppConfig = {
   database: {
-    url: process.env.DATABASE_URL || 'sqlite:./data/backtest.db',
+    url: process.env['DATABASE_URL'] || 'sqlite:./data/backtest.db',
     maxConnections: 10,
   },
   dataProviders: {
@@ -45,7 +45,7 @@ const defaultConfig: AppConfig = {
     maxConcurrent: 4,
   },
   logging: {
-    level: (process.env.LOG_LEVEL as any) || 'info',
+    level: (process.env['LOG_LEVEL'] as any) || 'info',
     file: './logs/backtest.log',
   },
 };

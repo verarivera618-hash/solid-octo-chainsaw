@@ -3,7 +3,7 @@
  * Fetches historical price data from Yahoo Finance API
  */
 
-import { DataProvider, PriceData } from '../types/index.js';
+import type { DataProvider, PriceData } from '../types/index.js';
 
 export class YahooDataProvider implements DataProvider {
   public readonly name = 'Yahoo Finance';
@@ -42,6 +42,7 @@ export class YahooDataProvider implements DataProvider {
         const volume = Math.floor(Math.random() * 1000000) + 100000;
         
         data.push({
+          symbol,
           timestamp: new Date(currentDate),
           open: Math.round(open * 100) / 100,
           high: Math.round(high * 100) / 100,

@@ -3,19 +3,17 @@
  * Handles strategy execution, trade simulation, and performance calculation
  */
 
-import { BacktestConfig, BacktestResult, Strategy, Trade, Position, PriceData } from '../types/index.js';
+import type { BacktestConfig, BacktestResult, Strategy, Trade, /* Position, */ PriceData } from '../types/index.js';
 import { Portfolio } from './Portfolio.js';
 import { TradeExecutor } from './TradeExecutor.js';
 import { PerformanceAnalyzer } from '../analysis/PerformanceAnalyzer.js';
 
 export class BacktestEngine {
-  private readonly config: BacktestConfig;
   private readonly portfolio: Portfolio;
   private readonly tradeExecutor: TradeExecutor;
   private readonly performanceAnalyzer: PerformanceAnalyzer;
 
   constructor(config: BacktestConfig) {
-    this.config = config;
     this.portfolio = new Portfolio(config.initialCapital);
     this.tradeExecutor = new TradeExecutor(config.commission, config.slippage);
     this.performanceAnalyzer = new PerformanceAnalyzer();
@@ -81,7 +79,7 @@ export class BacktestEngine {
   private getDataAtTimestamp(marketData: Map<string, PriceData[]>, timestamp: Date): PriceData[] {
     const result: PriceData[] = [];
     
-    for (const [symbol, data] of marketData.entries()) {
+    for (const [, data] of marketData.entries()) {
       const priceAtTime = data.find(p => p.timestamp.getTime() === timestamp.getTime());
       if (priceAtTime) {
         result.push(priceAtTime);
