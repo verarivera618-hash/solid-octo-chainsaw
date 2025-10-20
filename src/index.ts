@@ -6,9 +6,11 @@
 export { BacktestEngine } from './core/BacktestEngine.js';
 export { Portfolio } from './core/Portfolio.js';
 export { TradeExecutor } from './core/TradeExecutor.js';
+export { LiveTradeExecutor } from './core/LiveTradeExecutor.js';
 export { PerformanceAnalyzer } from './analysis/PerformanceAnalyzer.js';
 export { SimpleMovingAverageStrategy } from './strategies/SimpleMovingAverageStrategy.js';
 export { YahooDataProvider } from './data/YahooDataProvider.js';
+export { AlpacaBroker } from './brokers/AlpacaBroker.js';
 export { config, getConfig } from './config/index.js';
 
 // Re-export all types
