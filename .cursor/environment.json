@@ -1,0 +1,10 @@
+{
+  "dockerfile": "Dockerfile",
+  "setup_script": "setup.sh",
+  "install_commands": [
+    "pip install -r requirements.txt"
+  ],
+  "terminal_commands": [
+    "python -m py.main --test"
+  ]
+}
