@@ -1,0 +1,9 @@
+{
+  "dockerfile": "Dockerfile",
+  "setup_script": "setup.sh",
+  "install_commands": ["pip install -r requirements.txt"],
+  "terminal_commands": [
+    "python3 -m pytest -q",
+    "python3 main.py analyze --tickers AMD,NVDA,INTC --strategy semiconductor_momentum_strategy --save --offline"
+  ]
+}
