@@ -3,7 +3,11 @@
  * Centralized configuration with environment-specific overrides
  */
 
-import { BacktestConfig } from '../types/index.js';
+import type { BacktestConfig } from '../types/index.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 export interface AppConfig {
   readonly database: {
@@ -22,11 +26,17 @@ export interface AppConfig {
     readonly level: 'debug' | 'info' | 'warn' | 'error';
     readonly file: string;
   };
+  readonly alpaca: {
+    readonly apiKey: string;
+    readonly secretKey: string;
+    readonly baseUrl: string;
+    readonly dryRun: boolean;
+  };
 }
 
 const defaultConfig: AppConfig = {
   database: {
-    url: process.env.DATABASE_URL || 'sqlite:./data/backtest.db',
+    url: process.env['DATABASE_URL'] || 'sqlite:./data/backtest.db',
     maxConnections: 10,
   },
   dataProviders: {
@@ -45,8 +55,14 @@ const defaultConfig: AppConfig = {
     maxConcurrent: 4,
   },
   logging: {
-    level: (process.env.LOG_LEVEL as any) || 'info',
+    level: (process.env['LOG_LEVEL'] as any) || 'info',
     file: './logs/backtest.log',
+  },
+  alpaca: {
+    apiKey: process.env['ALPACA_API_KEY'] || '',
+    secretKey: process.env['ALPACA_SECRET_KEY'] || '',
+    baseUrl: process.env['ALPACA_BASE_URL'] || 'https://paper-api.alpaca.markets',
+    dryRun: process.env['ALPACA_DRY_RUN'] !== 'false', // Default to true for safety
   },
 };
 

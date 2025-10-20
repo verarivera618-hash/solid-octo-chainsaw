@@ -9,10 +9,15 @@ export { TradeExecutor } from './core/TradeExecutor.js';
 export { PerformanceAnalyzer } from './analysis/PerformanceAnalyzer.js';
 export { SimpleMovingAverageStrategy } from './strategies/SimpleMovingAverageStrategy.js';
 export { YahooDataProvider } from './data/YahooDataProvider.js';
+export { AlpacaDataProvider } from './data/AlpacaDataProvider.js';
+export { AlpacaTradeExecutor } from './core/AlpacaTradeExecutor.js';
 export { config, getConfig } from './config/index.js';
 
 // Re-export all types
 export * from './types/index.js';
+
+// Export examples
+export { runAlpacaExample } from './examples/alpaca-example.js';
 
 // Example usage function
 export async function runExampleBacktest(): Promise<void> {
