@@ -1,0 +1,9 @@
+{
+  "dockerfile": "Dockerfile",
+  "setup_script": "setup.sh",
+  "install_commands": ["pip install -r requirements.txt"],
+  "terminal_commands": ["python main.py --test"],
+  "environment_variables": {
+    "PYTHONPATH": "${workspaceFolder}/src"
+  }
+}
