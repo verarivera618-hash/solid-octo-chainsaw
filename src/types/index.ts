@@ -28,6 +28,9 @@ export interface Position {
   readonly averagePrice: number;
   readonly unrealizedPnL: number;
   readonly realizedPnL: number;
+  readonly currentPrice?: number;
+  readonly marketValue?: number;
+  readonly unrealizedPLPercent?: number;
 }
 
 export interface BacktestConfig {

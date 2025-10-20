@@ -3,7 +3,8 @@
  * Centralized configuration with environment-specific overrides
  */
 
-import { BacktestConfig } from '../types/index.js';
+import 'dotenv/config';
+import type { BacktestConfig } from '../types/index.js';
 
 export interface AppConfig {
   readonly database: {
@@ -22,11 +23,17 @@ export interface AppConfig {
     readonly level: 'debug' | 'info' | 'warn' | 'error';
     readonly file: string;
   };
+  readonly alpaca: {
+    readonly apiKey: string;
+    readonly apiSecret: string;
+    readonly paper: boolean;
+    readonly baseUrl?: string | undefined;
+  };
 }
 
 const defaultConfig: AppConfig = {
   database: {
-    url: process.env.DATABASE_URL || 'sqlite:./data/backtest.db',
+    url: process.env['DATABASE_URL'] || 'sqlite:./data/backtest.db',
     maxConnections: 10,
   },
   dataProviders: {
@@ -45,8 +52,14 @@ const defaultConfig: AppConfig = {
     maxConcurrent: 4,
   },
   logging: {
-    level: (process.env.LOG_LEVEL as any) || 'info',
+    level: (process.env['LOG_LEVEL'] as any) || 'info',
     file: './logs/backtest.log',
+  },
+  alpaca: {
+    apiKey: process.env['ALPACA_API_KEY'] || '',
+    apiSecret: process.env['ALPACA_API_SECRET'] || '',
+    paper: process.env['ALPACA_PAPER_TRADING'] !== 'false', // Default to paper trading for safety
+    baseUrl: process.env['ALPACA_BASE_URL'] || undefined,
   },
 };
 
