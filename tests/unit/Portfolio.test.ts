@@ -70,7 +70,7 @@ describe('Portfolio', () => {
 
       const position = portfolio.getPosition('AAPL');
       expect(position!.quantity).toBe(150);
-      expect(position!.averagePrice).toBe(153.33); // (100*150 + 50*160) / 150
+      expect(position!.averagePrice).toBeCloseTo(153.33, 2); // (100*150 + 50*160) / 150
     });
 
     it('should close position on complete sell', () => {

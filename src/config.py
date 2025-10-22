@@ -1,5 +1,6 @@
 """
-Configuration management for Perplexity-Alpaca Trading Integration
+Configuration management for Local Trading System
+All external API dependencies removed - fully local operation
 """
 import os
 from dotenv import load_dotenv
@@ -9,48 +10,22 @@ from typing import Optional
 load_dotenv()
 
 class Config:
-    """Configuration class for API keys and settings"""
+    """Configuration class for local trading system settings"""
     
-    # Perplexity API Configuration
-    PERPLEXITY_API_KEY: str = os.getenv("PERPLEXITY_API_KEY", "")
-    PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai/chat/completions"
-    
-    # Alpaca Configuration
-    ALPACA_API_KEY: str = os.getenv("ALPACA_API_KEY", "")
-    ALPACA_SECRET_KEY: str = os.getenv("ALPACA_SECRET_KEY", "")
-    ALPACA_BASE_URL: str = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
-    
-    # Trading Configuration
-    DEFAULT_STRATEGY: str = os.getenv("DEFAULT_STRATEGY", "semiconductor_momentum")
+    # Trading Configuration (local only)
+    DEFAULT_STRATEGY: str = os.getenv("DEFAULT_STRATEGY", "momentum")
     PAPER_TRADING: bool = os.getenv("PAPER_TRADING", "true").lower() == "true"
     MAX_POSITION_SIZE: float = float(os.getenv("MAX_POSITION_SIZE", "0.1"))
     RISK_TOLERANCE: float = float(os.getenv("RISK_TOLERANCE", "0.02"))
     
-    # Data Configuration
+    # Data Configuration (local only)
     CURSOR_TASKS_DIR: str = "cursor_tasks"
     LOGS_DIR: str = "logs"
     DATA_DIR: str = "data"
+    USE_MOCK_DATA: bool = os.getenv("USE_MOCK_DATA", "true").lower() == "true"
     
     @classmethod
     def validate_config(cls) -> bool:
-        """Validate that all required API keys are present"""
-        required_keys = [
-            cls.PERPLEXITY_API_KEY,
-            cls.ALPACA_API_KEY,
-            cls.ALPACA_SECRET_KEY
-        ]
-        
-        missing_keys = [key for key in required_keys if not key]
-        if missing_keys:
-            print(f"Missing required API keys: {missing_keys}")
-            return False
+        """Validate configuration - no external API keys required"""
+        # All local configuration - always valid
         return True
-    
-    @classmethod
-    def get_perplexity_headers(cls) -> dict:
-        """Get headers for Perplexity API requests"""
-        return {
-            "accept": "application/json",
-            "authorization": f"Bearer {cls.PERPLEXITY_API_KEY}",
-            "content-type": "application/json"
-        }

@@ -1,205 +1,217 @@
-# Perplexity-Alpaca Trading Integration
+# Local Trading System & Backtesting Framework
 
-A sophisticated system that integrates Perplexity's live finance data with Cursor Background Agents to automatically generate and implement trading strategies on Alpaca's platform.
+A fully local trading system with advanced backtesting capabilities. **No external API subscriptions required** - operates entirely on your local machine with mock data generation or local data files.
 
 ## 🚀 Overview
 
-This system combines:
-- **Perplexity API** for real-time financial data, SEC filings, market sentiment, and technical analysis
-- **Cursor Background Agents** for autonomous trading bot development
-- **Alpaca Trading API** for paper and live trading execution
-- **Comprehensive risk management** and portfolio optimization
+This system provides:
+- **Local Backtesting Framework** (TypeScript) - Fast, reliable strategy testing
+- **Mock Data Generation** - Realistic market data without external APIs
+- **Portfolio Management** - Track positions and performance locally
+- **Strategy Development** - Create and test trading strategies
+- **Performance Analysis** - Comprehensive metrics and reporting
 
 ## 🏗️ Architecture
 
 ```
-Perplexity API → Data Analysis → Prompt Generation → Cursor Agent → Trading Bot
-     ↓              ↓              ↓              ↓           ↓
-Financial Data → AI Analysis → Structured Prompt → Code Gen → Alpaca Trading
+Local Data → Strategy Engine → Backtest → Analysis → Results
+    ↓            ↓              ↓          ↓         ↓
+Mock/CSV → Signal Gen → Trade Sim → Metrics → Reports (Local)
 ```
 
 ## 📋 Features
 
-### Data Sources
-- **SEC Filings Analysis**: 10-K, 10-Q, 8-K filings with financial metrics extraction
-- **Real-time Market News**: Sentiment analysis and price-moving events
-- **Earnings Analysis**: Revenue trends, guidance, and analyst estimates
-- **Technical Analysis**: RSI, MACD, Bollinger Bands, and custom indicators
-- **Sector Analysis**: Industry trends and competitive landscape
+### Data Sources (100% Local)
+- **Mock Data Generation**: Realistic OHLCV data generated locally
+- **CSV Import**: Load your own historical data
+- **Customizable Parameters**: Control volatility, trends, and patterns
+- **No API Keys Required**: Zero external dependencies
 
 ### Trading Capabilities
 - **Multi-strategy Support**: Momentum, mean reversion, breakout, and custom strategies
-- **Real-time Data Streaming**: WebSocket connections for live price feeds
+- **Backtesting Framework**: Fast historical strategy validation
 - **Risk Management**: Position sizing, stop-loss, take-profit, and drawdown limits
-- **Portfolio Optimization**: Kelly Criterion and correlation-based sizing
-- **Backtesting Framework**: Historical strategy validation and performance analysis
+- **Portfolio Tracking**: Real-time position and P&L monitoring
+- **Performance Metrics**: Sharpe ratio, max drawdown, win rate, and more
 
-### Cursor Integration
-- **Automated Prompt Generation**: Context-rich prompts for background agents
-- **Structured Implementation**: Complete file structure and requirements
-- **Testing Framework**: Unit tests and validation procedures
-- **Documentation**: Comprehensive code documentation and examples
+### Local Development
+- **TypeScript Core**: Type-safe, fast backtesting engine
+- **Python Utilities**: Data processing and analysis tools
+- **No Network Required**: Run entirely offline
+- **Full Control**: All code and data on your machine
+- **Easy Testing**: Built-in test framework
 
 ## 🛠️ Installation
 
 ### Prerequisites
-- Python 3.11+
-- Cursor IDE with Background Agents enabled
-- Perplexity API key
-- Alpaca Trading API credentials
+- Node.js 18+ (for TypeScript backtesting)
+- Python 3.11+ (for data utilities)
+- No API keys or subscriptions needed!
 
 ### Setup
 
 1. **Clone the repository**
 ```bash
 git clone <repository-url>
-cd perplexity-alpaca-trading
+cd local-trading-system
 ```
 
-2. **Install dependencies**
+2. **Install TypeScript dependencies**
+```bash
+npm install
+```
+
+3. **Install Python dependencies (optional)**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Configure environment**
+4. **Build the project**
 ```bash
-cp .env.example .env
-# Edit .env with your API keys
+npm run build
 ```
 
-4. **Run setup script**
+5. **Run tests**
 ```bash
-chmod +x setup.sh
-./setup.sh
+npm test
 ```
 
 ## 🔧 Configuration
 
-### Environment Variables
+### Environment Variables (Optional)
 
-Create a `.env` file with the following variables:
+Create a `.env` file for custom settings:
 
 ```env
-# Perplexity API Configuration
-PERPLEXITY_API_KEY=your_perplexity_api_key_here
-
-# Alpaca Trading Configuration
-ALPACA_API_KEY=your_alpaca_api_key_here
-ALPACA_SECRET_KEY=your_alpaca_secret_key_here
-ALPACA_BASE_URL=https://paper-api.alpaca.markets  # Use https://api.alpaca.markets for live trading
-
-# Trading Configuration
-DEFAULT_STRATEGY=semiconductor_momentum
+# Trading Configuration (all local)
+DEFAULT_STRATEGY=momentum
 PAPER_TRADING=true
 MAX_POSITION_SIZE=0.1  # 10% of portfolio per position
 RISK_TOLERANCE=0.02    # 2% stop loss
+
+# Data Configuration
+USE_MOCK_DATA=true
+DATA_DIRECTORY=./data
+LOG_LEVEL=INFO
 ```
 
-### Cursor Configuration
+**No API keys required!** Everything runs locally.
 
-The `.cursor/environment.json` file is pre-configured for optimal background agent performance:
+### Project Structure
 
-```json
-{
-  "dockerfile": "Dockerfile",
-  "setup_script": "setup.sh",
-  "install_commands": ["pip install -r requirements.txt"],
-  "terminal_commands": ["python main.py --test"],
-  "environment_variables": {
-    "PYTHONPATH": "${workspaceFolder}/src"
-  }
-}
+```
+/workspace/
+├── src/                    # Source code
+│   ├── core/              # TypeScript backtesting engine
+│   ├── strategies/        # Trading strategies
+│   ├── analysis/          # Performance analysis
+│   ├── data/              # Data providers (all local)
+│   ├── types/             # TypeScript types
+│   ├── config.py          # Python configuration
+│   └── logger.py          # Logging utilities
+├── examples/              # Usage examples
+├── tests/                 # Test suites
+├── dist/                  # Compiled output
+└── docs/                  # Documentation
 ```
 
 ## 🚀 Usage
 
 ### Basic Usage
 
-1. **Test API connections**
+1. **Build the project**
 ```bash
-python main.py --test
+npm run build
 ```
 
-2. **Check account status**
+2. **Run a basic backtest**
 ```bash
-python main.py --status
+npm start
 ```
 
-3. **Generate trading strategy**
+3. **Run tests**
 ```bash
-python main.py --tickers AAPL MSFT --strategy momentum
+npm test
 ```
 
-4. **Quick analysis**
+4. **Watch mode (development)**
 ```bash
-python main.py --tickers AAPL --strategy momentum --quick
+npm run dev
 ```
 
 ### Advanced Usage
 
-#### Comprehensive Analysis
-```python
-from src.main import PerplexityAlpacaIntegration
+#### Creating a Custom Strategy
+```typescript
+import { Strategy, PriceData, Signal } from './src/types/index.js';
 
-# Initialize integration
-integration = PerplexityAlpacaIntegration()
-
-# Generate complete trading strategy
-prompt_file = integration.analyze_and_generate_task(
-    tickers=["AAPL", "MSFT", "NVDA"],
-    strategy_name="semiconductor_momentum",
-    additional_context="Focus on AI and cloud computing trends"
-)
-```
-
-#### Custom Strategy Development
-```python
-# Generate custom strategy prompt
-market_data = {
-    "sec_filings": "Custom SEC analysis",
-    "news_sentiment": "Custom sentiment data",
-    "technical": "Custom technical analysis",
-    "sector": "Custom sector analysis",
-    "price_data": "Custom price data"
+class MyCustomStrategy implements Strategy {
+  name = 'My Custom Strategy';
+  
+  generateSignals(data: PriceData[]): Signal[] {
+    // Your strategy logic here
+    return signals;
+  }
+  
+  validate(): boolean {
+    return true;
+  }
 }
-
-prompt = integration.prompt_generator.generate_trading_strategy_prompt(
-    market_data=market_data,
-    strategy_type="custom_strategy",
-    tickers=["AAPL"],
-    additional_context="Custom requirements"
-)
 ```
 
-### Using Cursor Background Agents
+#### Running a Backtest
+```typescript
+import { BacktestEngine } from './src/core/BacktestEngine.js';
+import { AlpacaDataProvider } from './src/data/AlpacaDataProvider.js';
 
-1. **Open Cursor** and press `Ctrl+Shift+B` (or `⌘B` on Mac)
-2. **Click "New Background Agent"**
-3. **Copy the contents** of the generated prompt file from `cursor_tasks/`
-4. **Paste into the agent prompt field**
-5. **The agent will create a new branch** and implement the strategy
+// Initialize components
+const dataProvider = new AlpacaDataProvider(); // Uses local mock data
+const config = {
+  initialCapital: 100000,
+  commission: 0.001,
+  slippage: 0.001
+};
 
-## 📊 Generated Trading Bots
+// Run backtest
+const engine = new BacktestEngine(config);
+const marketData = await dataProvider.getPriceData('AAPL', startDate, endDate);
+const results = await engine.runBacktest(strategy, new Map([['AAPL', marketData]]));
 
-The Cursor background agents will generate complete trading systems with:
+console.log(results);
+```
 
-### Core Files
-- `config.py`: API configuration and settings
-- `data_handler.py`: Real-time data streaming and storage
-- `strategy.py`: Trading logic implementation
-- `risk_manager.py`: Risk management and position sizing
-- `executor.py`: Order execution and management
-- `portfolio_manager.py`: Portfolio tracking and rebalancing
-- `logger.py`: Comprehensive logging system
-- `main.py`: Main execution loop
+### Using Local Data
 
-### Features
-- **Real-time Data Streaming**: WebSocket connections for live price feeds
-- **Technical Indicators**: RSI, MACD, Bollinger Bands, ATR, and custom indicators
-- **Risk Management**: Kelly Criterion, stop-loss, take-profit, and drawdown limits
-- **Order Management**: Market, limit, and bracket orders
-- **Backtesting**: Historical strategy validation
-- **Monitoring**: Real-time performance tracking and alerts
+1. **Mock Data (Default)**: Automatically generated realistic price data
+```typescript
+const provider = new AlpacaDataProvider(); // Automatically uses mock data
+```
+
+2. **Custom CSV Data**: Load your own historical data
+```python
+import pandas as pd
+data = pd.read_csv('./data/my_data.csv')
+```
+
+## 📊 Core Components
+
+### TypeScript Backtesting Framework
+
+#### Core Modules
+- `BacktestEngine.ts`: Main backtesting engine
+- `Portfolio.ts`: Position and cash management
+- `TradeExecutor.ts`: Order simulation with commissions/slippage
+- `PerformanceAnalyzer.ts`: Calculate metrics and generate reports
+
+#### Data Providers (All Local)
+- `AlpacaDataProvider.ts`: Mock data generator (no external calls)
+- `YahooDataProvider.ts`: Local data provider
+- Custom providers: Easy to implement your own
+
+#### Strategy Framework
+- `SimpleMovingAverageStrategy.ts`: Example strategy
+- Easy to extend with your own strategies
+- Type-safe interfaces for signals and positions
 
 ## 🧪 Testing
 
@@ -253,32 +265,31 @@ pytest --cov=src
 
 ## 🚨 Important Notes
 
-### Cursor Requirements
-- **Privacy Mode must be disabled** for background agents
-- **Usage-based spending enabled** (minimum $10 funding)
-- **GitHub repository connected** with read-write privileges
+### Local Operation
+- **No internet required**: All operations run locally
+- **No subscriptions**: Zero external API dependencies
+- **Full privacy**: Your data never leaves your machine
+- **Open source**: Modify and extend as needed
 
-### Trading Considerations
-- **Paper trading only** initially - no live trading without explicit approval
-- **Rate limiting** - respect Alpaca's API limits
-- **Error handling** - comprehensive error handling for all operations
-- **Testing** - thorough testing before live deployment
+### Development Guidelines
+- **Test thoroughly**: Use the built-in test framework
+- **Version control**: All changes tracked in git
+- **Type safety**: TypeScript ensures code quality
+- **Performance**: Fast backtests with local data
 
-## 📚 API Documentation
+## 📚 Documentation
 
-### Perplexity API
-- [Perplexity API Documentation](https://docs.perplexity.ai/)
-- [Financial Data Access](https://docs.perplexity.ai/llms-full.txt)
-- [SEC Filings Integration](https://docs.perplexity.ai/cookbook/examples/financial-news-tracker/README)
+### Local Resources
+- `docs/api/`: TypeScript API documentation
+- `docs/guides/`: Usage guides and tutorials
+- `examples/`: Working code examples
+- `tests/`: Test cases showing usage patterns
 
-### Alpaca API
-- [Alpaca Trading API](https://alpaca.markets/sdks/python/)
-- [Market Data API](https://docs.alpaca.markets/docs/sdks-and-tools)
-- [WebSocket Streaming](https://alpaca.markets/learn/algorithmic-trading-python-alpaca)
-
-### Cursor Background Agents
-- [Background Agents Guide](https://lgallardo.com/2025/06/11/cursor-background-agents-experience/)
-- [Setup Instructions](https://madewithlove.com/blog/using-cursor-background-agents/)
+### Key Concepts
+- **Backtesting**: Simulate strategies on historical data
+- **Mock Data**: Realistic synthetic market data
+- **Risk Management**: Position sizing and stop losses
+- **Performance Metrics**: Sharpe ratio, max drawdown, etc.
 
 ## 🤝 Contributing
 
@@ -294,7 +305,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## ⚠️ Disclaimer
 
-This software is for educational and research purposes only. Trading involves substantial risk of loss and is not suitable for all investors. Past performance is not indicative of future results. Always consult with a qualified financial advisor before making investment decisions.
+This software is for educational and research purposes only. This is a backtesting and development framework with mock data - not for live trading. Trading involves substantial risk of loss and is not suitable for all investors. Past performance is not indicative of future results.
 
 ## 🆘 Support
 
@@ -306,12 +317,16 @@ For issues and questions:
 
 ## 🔄 Updates
 
+### Version 2.0.0 - Local Edition
+- **Removed all external dependencies**: No API subscriptions required
+- **100% local operation**: Run entirely offline
+- **Mock data generation**: Realistic synthetic market data
+- **Enhanced backtesting**: Fast TypeScript engine
+- **Privacy-first**: Your data stays on your machine
+
 ### Version 1.0.0
-- Initial release with Perplexity-Alpaca integration
-- Cursor background agent support
-- Comprehensive testing framework
-- Complete documentation
+- Initial release with external integrations
 
 ---
 
-**Built with ❤️ for algorithmic trading and AI automation**
+**Built with ❤️ for local algorithmic trading development**

@@ -1,150 +1,126 @@
 # Usage Examples
 
-This directory contains comprehensive examples demonstrating how to use the Perplexity-Alpaca Trading Integration system.
+This directory contains examples demonstrating how to use the Local Trading System.
 
 ## 📁 Files
 
-- `basic_usage.py` - Basic usage examples for getting started
-- `advanced_usage.py` - Advanced examples with complex strategies
 - `README.md` - This documentation file
 
 ## 🚀 Quick Start
 
-### Basic Examples
+### TypeScript Backtesting
 
-Run the basic examples to get started:
-
-```bash
-python examples/basic_usage.py
-```
-
-This will demonstrate:
-- Single stock analysis
-- Multi-stock analysis
-- Quick analysis mode
-- Account status checking
-- Custom strategy generation
-- Sector analysis
-
-### Advanced Examples
-
-Run the advanced examples for complex strategies:
+Run a backtest with the example strategy:
 
 ```bash
-python examples/advanced_usage.py
+npm run build
+npm start
 ```
 
-This will demonstrate:
-- Comprehensive analysis with all data sources
-- Real-time monitoring and alerts
-- Risk management strategies
-- Sector rotation strategies
-- Earnings-based trading strategies
-- Real-time data streaming
+### Running Tests
 
-## 📊 Example Strategies
-
-### 1. Basic Momentum Strategy
-```python
-integration.analyze_and_generate_task(
-    tickers=["AAPL"],
-    strategy_name="momentum_strategy"
-)
+```bash
+npm test
 ```
 
-### 2. Semiconductor Sector Strategy
-```python
-integration.analyze_and_generate_task(
-    tickers=["AMD", "NVDA", "INTC"],
-    strategy_name="semiconductor_momentum",
-    additional_context="Focus on AI and data center trends"
-)
-```
+This will run:
+- Portfolio management tests
+- Backtesting engine tests
+- Strategy implementation tests
 
-### 3. Risk-Managed Strategy
-```python
-# See advanced_usage.py for complete example
-# Includes Kelly Criterion, correlation limits, and dynamic risk management
-```
+## 📊 Example Strategy
 
-### 4. Sector Rotation Strategy
-```python
-# See advanced_usage.py for complete example
-# Analyzes multiple sectors and implements rotation logic
-```
+### Simple Moving Average Crossover
+```typescript
+import { SimpleMovingAverageStrategy } from '../src/strategies/SimpleMovingAverageStrategy.js';
+import { BacktestEngine } from '../src/core/BacktestEngine.js';
+import { AlpacaDataProvider } from '../src/data/AlpacaDataProvider.js';
 
-### 5. Earnings Play Strategy
-```python
-# See advanced_usage.py for complete example
-# Focuses on earnings announcements and volatility trading
+// Initialize strategy with parameters
+const strategy = new SimpleMovingAverageStrategy(20, 50, ['AAPL']);
+
+// Get local mock data
+const dataProvider = new AlpacaDataProvider();
+const startDate = new Date('2023-01-01');
+const endDate = new Date('2023-12-31');
+const marketData = await dataProvider.getPriceData('AAPL', startDate, endDate);
+
+// Run backtest
+const config = {
+  initialCapital: 100000,
+  commission: 0.001,
+  slippage: 0.001
+};
+const engine = new BacktestEngine(config);
+const results = await engine.runBacktest(strategy, new Map([['AAPL', marketData]]));
+
+console.log('Backtest Results:', results);
 ```
 
 ## 🔧 Configuration
 
 Before running examples, ensure you have:
 
-1. **API Keys configured** in `.env` file
-2. **Dependencies installed** (`pip install -r requirements.txt`)
-3. **Cursor IDE** with Background Agents enabled
+1. **Dependencies installed** (`npm install`)
+2. **Project built** (`npm run build`)
 
-## 📈 Generated Outputs
+No API keys or external services required!
 
-Each example generates:
-- **Comprehensive prompts** for Cursor background agents
-- **Structured market analysis** from Perplexity
-- **Technical indicators** and price data
-- **Risk management parameters**
-- **Complete trading strategy specifications**
+## 📈 Output
+
+Backtests generate:
+- **Performance metrics** (Sharpe ratio, max drawdown, win rate)
+- **Trade history** with timestamps and prices
+- **Equity curve** showing portfolio value over time
+- **Risk metrics** and statistics
 
 ## 🎯 Next Steps
 
-After running examples:
-
-1. **Open Cursor** and press `Ctrl+Shift+B`
-2. **Click "New Background Agent"**
-3. **Copy the generated prompt** from `cursor_tasks/` directory
-4. **Paste into the agent prompt field**
-5. **The agent will implement** the complete trading strategy
+1. **Modify strategies** in `src/strategies/`
+2. **Create custom data providers** for your data sources
+3. **Adjust risk parameters** in the config
+4. **Run backtests** with different parameters
+5. **Analyze results** using the performance analyzer
 
 ## ⚠️ Important Notes
 
-- **Paper trading only** - Examples use paper trading mode by default
-- **API limits** - Be mindful of Perplexity and Alpaca API rate limits
-- **Testing** - Always test strategies with paper trading first
-- **Risk management** - Implement proper risk controls before live trading
+- **Local only** - All data is generated or loaded locally
+- **No external APIs** - Zero dependencies on external services
+- **Mock data** - Default data provider generates realistic synthetic data
+- **Backtesting only** - This is a development framework, not for live trading
 
 ## 🆘 Troubleshooting
 
 ### Common Issues
 
-1. **API Connection Errors**
-   - Check your `.env` file configuration
-   - Verify API keys are correct
-   - Ensure you have sufficient API credits
+1. **Build Errors**
+   - Run `npm install` to install dependencies
+   - Check TypeScript version compatibility
+   - Clear `dist/` folder and rebuild
 
-2. **Import Errors**
-   - Make sure you're running from the project root
-   - Check that all dependencies are installed
-   - Verify Python path configuration
+2. **Test Failures**
+   - Ensure project is built (`npm run build`)
+   - Check that tests are in `tests/` directory
+   - Run tests in watch mode for debugging (`npm run test:watch`)
 
-3. **Cursor Agent Issues**
-   - Ensure Privacy Mode is disabled
-   - Check that usage-based spending is enabled
-   - Verify GitHub repository connection
+3. **Import Errors**
+   - Use `.js` extensions in TypeScript imports (ESM)
+   - Check module paths are correct
+   - Verify `tsconfig.json` settings
 
 ### Getting Help
 
 - Check the main README.md for detailed documentation
-- Review the test cases in the `tests/` directory
-- Open an issue on GitHub for specific problems
+- Review the test cases in the `tests/unit/` directory
+- Check TypeScript API documentation in `docs/api/`
 
 ## 📚 Additional Resources
 
 - [Main Documentation](../README.md)
-- [API Documentation](../docs/)
-- [Test Cases](../tests/)
-- [Configuration Guide](../docs/configuration.md)
+- [TypeScript API Docs](../docs/api/)
+- [Test Cases](../tests/unit/)
+- [Core Engine Code](../src/core/)
 
 ---
 
-**Happy Trading! 🚀📈**
+**Happy Backtesting! 🚀📈**
