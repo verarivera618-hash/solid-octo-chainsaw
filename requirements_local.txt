@@ -1,0 +1,14 @@
+# Local-only requirements - No external API dependencies
+# These are all free, open-source libraries for local computation
+
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Database
+# SQLite3 is included with Python
+
+# Optional: For enhanced local functionality
+scipy>=1.10.0  # For statistical analysis
+matplotlib>=3.7.0  # For charting (optional)
+plotly>=5.14.0  # For interactive charts (optional)
