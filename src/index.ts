@@ -9,6 +9,7 @@ export { TradeExecutor } from './core/TradeExecutor.js';
 export { PerformanceAnalyzer } from './analysis/PerformanceAnalyzer.js';
 export { SimpleMovingAverageStrategy } from './strategies/SimpleMovingAverageStrategy.js';
 export { YahooDataProvider } from './data/YahooDataProvider.js';
+export { AlpacaDataProvider } from './data/AlpacaDataProvider.js';
 export { config, getConfig } from './config/index.js';
 
 // Re-export all types

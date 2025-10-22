@@ -3,7 +3,7 @@
  * Example strategy implementation demonstrating proper structure
  */
 
-import { Strategy, Signal, PriceData } from '../types/index.js';
+import type { Strategy, Signal, PriceData } from '../types/index.js';
 
 export class SimpleMovingAverageStrategy implements Strategy {
   public readonly name = 'Simple Moving Average Crossover';
@@ -26,7 +26,7 @@ export class SimpleMovingAverageStrategy implements Strategy {
     const signals: Signal[] = [];
     
     for (const symbol of this.symbols) {
-      const symbolData = data.filter(d => d.symbol === symbol).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      const symbolData = data.filter(d => (d as any).symbol === symbol).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       
       if (symbolData.length < this.longPeriod) {
         continue; // Not enough data
@@ -39,10 +39,10 @@ export class SimpleMovingAverageStrategy implements Strategy {
         continue;
       }
 
-      const currentShort = shortMA[shortMA.length - 1];
-      const previousShort = shortMA[shortMA.length - 2];
-      const currentLong = longMA[longMA.length - 1];
-      const previousLong = longMA[longMA.length - 2];
+      const currentShort = shortMA[shortMA.length - 1]!;
+      const previousShort = shortMA[shortMA.length - 2]!;
+      const currentLong = longMA[longMA.length - 1]!;
+      const previousLong = longMA[longMA.length - 2]!;
 
       // Check for crossover
       if (previousShort <= previousLong && currentShort > currentLong) {
@@ -51,7 +51,7 @@ export class SimpleMovingAverageStrategy implements Strategy {
           symbol,
           action: 'buy',
           strength: this.calculateSignalStrength(currentShort, currentLong),
-          timestamp: symbolData[symbolData.length - 1].timestamp,
+          timestamp: symbolData[symbolData.length - 1]!.timestamp,
           reason: `Short MA (${currentShort.toFixed(2)}) crossed above Long MA (${currentLong.toFixed(2)})`,
         });
       } else if (previousShort >= previousLong && currentShort < currentLong) {
@@ -60,7 +60,7 @@ export class SimpleMovingAverageStrategy implements Strategy {
           symbol,
           action: 'sell',
           strength: this.calculateSignalStrength(currentLong, currentShort),
-          timestamp: symbolData[symbolData.length - 1].timestamp,
+          timestamp: symbolData[symbolData.length - 1]!.timestamp,
           reason: `Short MA (${currentShort.toFixed(2)}) crossed below Long MA (${currentLong.toFixed(2)})`,
         });
       }
