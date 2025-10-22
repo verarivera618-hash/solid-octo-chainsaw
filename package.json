@@ -1,7 +1,7 @@
 {
-  "name": "solid-octo-chainsaw",
+  "name": "local-trading-system",
   "version": "1.0.0",
-  "description": "Advanced backtesting framework for trading strategy prediction and analysis",
+  "description": "Local trading system with synthetic data generation and strategy simulation",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
