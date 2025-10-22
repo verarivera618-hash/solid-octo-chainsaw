@@ -5,7 +5,7 @@
 **Status**: ✅ **COMPLETE** - All components implemented and tested
 
 **Created**: October 20, 2025  
-**Branch**: `cursor/integrate-perplexity-finance-data-with-cursor-agents-a4ff`
+**Branch**: `local/remove-cursor-dependencies`
 
 ---
 
@@ -14,7 +14,7 @@
 A comprehensive trading system that integrates three powerful platforms:
 
 1. **Perplexity AI** - Real-time financial intelligence and SEC data
-2. **Cursor Background Agents** - Automated code generation for trading strategies  
+2. **Local Prompt Workflow** - Copy/paste prompts for local implementation  
 3. **Alpaca Trading** - Paper and live trading execution
 
 ---
@@ -23,8 +23,6 @@ A comprehensive trading system that integrates three powerful platforms:
 
 ```
 alpaca-trading-bot/
-├── .cursor/
-│   └── environment.json              # Cursor agent configuration
 ├── src/
 │   ├── __init__.py
 │   ├── config.py                     # Configuration management
@@ -39,7 +37,7 @@ alpaca-trading-bot/
 │   └── test_integration.py           # Integration tests (150+ lines)
 ├── examples/
 │   └── example_usage.py              # Usage examples (330 lines)
-├── cursor_tasks/                     # Generated Cursor prompts
+├── local_tasks/                      # Generated local prompts
 ├── logs/                             # Trading logs
 ├── main.py                           # Main orchestrator (450 lines)
 ├── requirements.txt                  # Python dependencies
@@ -160,7 +158,7 @@ cp .env.example .env
 python main.py test --tickers AAPL
 ```
 
-### Generate Cursor Prompt
+### Generate Local Prompt
 
 ```bash
 python main.py analyze \
@@ -252,11 +250,10 @@ python main.py trade \
    python main.py analyze --tickers AAPL --strategy momentum
    ```
 
-5. **Use with Cursor**:
-   - Open Cursor
-   - Press `Ctrl+Shift+B` (or `⌘B` on Mac)
-   - Copy generated prompt from `cursor_tasks/`
-   - Let agent implement the strategy!
+5. **Use Locally**:
+   - Open the generated prompt under `local_tasks/`
+   - Copy the content into your editor and implement under `src/`
+   - Run tests with `pytest`
 
 6. **Test in Paper Trading**:
    ```bash
@@ -269,7 +266,7 @@ python main.py trade \
 
 - **Alpaca Docs**: https://docs.alpaca.markets/
 - **Perplexity Docs**: https://docs.perplexity.ai/
-- **Cursor Agents**: https://forum.cursor.com/
+ 
 - **Example Code**: See `examples/example_usage.py`
 
 ---
@@ -291,12 +288,12 @@ This implementation follows the **Agency Global Ruleset** provided:
 
 ## 🏆 Achievements
 
-✅ **Complete end-to-end integration** between Perplexity, Cursor, and Alpaca  
+✅ **Complete end-to-end integration** between Perplexity and Alpaca  
 ✅ **Production-ready code** with error handling and logging  
 ✅ **Comprehensive documentation** for easy onboarding  
 ✅ **Multiple trading strategies** with extensible framework  
 ✅ **Safety-first design** with paper trading and risk management  
-✅ **Automated prompt generation** for Cursor background agents  
+✅ **Automated prompt generation** for local workflows  
 ✅ **Real-time data streaming** with WebSocket support  
 ✅ **Full test suite** with unit and integration tests  
 
@@ -330,7 +327,7 @@ If you encounter issues:
 ## 🎉 Project Status: READY FOR USE
 
 The system is fully functional and ready to:
-- Generate Cursor background agent prompts ✅
+- Generate local prompts ✅
 - Fetch financial data from Perplexity ✅
 - Execute trades on Alpaca ✅
 - Stream real-time market data ✅

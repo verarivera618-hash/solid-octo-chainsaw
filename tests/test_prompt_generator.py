@@ -106,12 +106,16 @@ class TestCursorPromptGenerator:
         assert "momentum" in prompt
         assert "Alpaca" in prompt
     
-    def test_create_cursor_agent_instructions(self):
-        """Test Cursor agent instructions generation"""
-        instructions = self.generator.create_cursor_agent_instructions()
+    def test_create_local_instructions(self):
+        """Test local workflow instructions generation"""
+        # Support both legacy alias and new method name
+        if hasattr(self.generator, 'create_local_instructions'):
+            instructions = self.generator.create_local_instructions()
+        else:
+            instructions = self.generator.create_cursor_agent_instructions()
         
-        assert "Cursor Background Agent Setup Instructions" in instructions
-        assert "Ctrl+Shift+B" in instructions
+        assert "Local Workflow Instructions" in instructions
+        assert "generated prompt" in instructions
         assert "Privacy Mode" in instructions
         assert "usage-based spending" in instructions
         assert "GitHub repository" in instructions

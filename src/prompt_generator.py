@@ -1,6 +1,6 @@
 """
-Prompt generation layer for Cursor background agents
-Converts financial data into structured prompts for autonomous trading bot development
+Local prompt generation layer for offline workflows
+Converts financial data into structured prompts for local copy/paste workflows
 """
 import os
 import json
@@ -8,8 +8,8 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from .config import Config
 
-class CursorPromptGenerator:
-    """Generates structured prompts for Cursor background agents"""
+class LocalPromptGenerator:
+    """Generates structured prompts for local, offline-friendly workflows"""
     
     def __init__(self):
         self.tasks_dir = Config.CURSOR_TASKS_DIR
@@ -21,7 +21,7 @@ class CursorPromptGenerator:
                                        tickers: List[str],
                                        additional_context: str = "") -> str:
         """
-        Generate a comprehensive prompt for Cursor background agent to implement trading strategy
+        Generate a comprehensive local prompt to implement a trading strategy
         
         Args:
             market_data: Dictionary containing all financial analysis data
@@ -30,7 +30,7 @@ class CursorPromptGenerator:
             additional_context: Any additional context or requirements
             
         Returns:
-            Formatted prompt string for Cursor agent
+            Formatted prompt string for local use
         """
         
         # Extract data components
@@ -285,7 +285,7 @@ The implementation will be considered successful when:
 **Target Symbols**: {', '.join(tickers)}
 **Analysis Date**: {datetime.now().strftime("%Y-%m-%d")}
 
-This prompt provides comprehensive context for building a sophisticated trading system. The Cursor background agent should use this information to create a production-ready implementation that incorporates all the financial analysis and technical requirements specified above.
+This prompt provides comprehensive context for building a sophisticated trading system. Use this information to create a production-ready implementation that incorporates all the financial analysis and technical requirements specified above.
 """
 
         return prompt
@@ -293,7 +293,7 @@ This prompt provides comprehensive context for building a sophisticated trading 
     def save_prompt_to_file(self, prompt: str, strategy_name: str, 
                            tickers: List[str]) -> str:
         """
-        Save the generated prompt to a file for Cursor background agent
+        Save the generated prompt to a file for local copy/paste
         
         Args:
             prompt: The generated prompt string
@@ -310,7 +310,7 @@ This prompt provides comprehensive context for building a sophisticated trading 
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(prompt)
         
-        print(f"✅ Cursor prompt saved to: {filepath}")
+        print(f"✅ Prompt saved to: {filepath}")
         return filepath
     
     def generate_quick_strategy_prompt(self, ticker: str, 
@@ -353,55 +353,37 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
         return prompt
     
-    def create_cursor_agent_instructions(self) -> str:
+    def create_local_instructions(self) -> str:
         """
-        Create instructions for setting up Cursor background agents
+        Create instructions for using the generated prompts locally
         
         Returns:
             Instructions string
         """
         instructions = f"""
-# Cursor Background Agent Setup Instructions
-
-## Prerequisites
-1. **Disable Privacy Mode** in Cursor settings
-2. **Enable usage-based spending** (minimum $10 funding)
-3. **Connect GitHub repository** with read-write privileges
-4. **Configure environment** with .cursor/environment.json
+# Local Workflow Instructions (No external IDE required)
 
 ## How to Use Generated Prompts
-
-### Method 1: Manual Launch
-1. Open Cursor and press `Ctrl+Shift+B` (or `⌘B` on Mac)
-2. Click "New Background Agent"
-3. Copy the contents of the generated prompt file
-4. Paste into the agent prompt field
-5. The agent will create a new branch and implement the strategy
-
-### Method 2: GitHub Issues (Workaround)
-1. Create a new GitHub issue with the prompt content
-2. Use Linear integration to delegate to Cursor agent
-3. The agent will process the issue and implement the solution
-
-### Method 3: Direct File Integration
-1. Place prompt files in the `{self.tasks_dir}/` directory
-2. Use Cursor's file-based agent triggers (if available)
-3. Monitor the agent's progress through the Cursor interface
+1. Open the generated prompt from `{os.path.abspath(self.tasks_dir)}/`
+2. Copy the content and paste it into your local development workflow
+3. Implement the described files and logic locally in this repository
+4. Run tests and iterate locally; no external subscriptions required
 
 ## Generated Files Location
 All generated prompts are saved in: `{os.path.abspath(self.tasks_dir)}/`
 
-## Next Steps After Agent Completion
-1. Review the generated code
-2. Test the implementation with paper trading
-3. Validate strategy performance
-4. Deploy to live trading (if approved)
-5. Monitor and optimize performance
+## Recommended Next Steps
+1. Review the generated prompt
+2. Implement the code in `src/` per the prompt
+3. Use paper trading with Alpaca for safety
+4. Run `pytest` to validate changes
 
 ## Troubleshooting
-- Ensure all API keys are properly configured
-- Check Cursor agent logs for any errors
+- Ensure API keys are properly configured in `.env`
 - Verify Alpaca API connectivity
-- Test with small position sizes initially
+- Start small and validate with paper trading
 """
         return instructions
+
+# Temporary alias for backward compatibility with existing imports/tests
+CursorPromptGenerator = LocalPromptGenerator

@@ -175,12 +175,10 @@ if __name__ == "__main__":
         example_sector_analysis()
         
         print("\n🎉 All examples completed successfully!")
-        print("\nNext steps:")
-        print("1. Open Cursor and press Ctrl+Shift+B")
-        print("2. Click 'New Background Agent'")
-        print("3. Copy the contents of any generated prompt file")
-        print("4. Paste into the agent prompt field")
-        print("5. The agent will implement the trading strategy")
+        print("\nNext steps (Local):")
+        print("1. Open the generated prompt under local_tasks/")
+        print("2. Copy its content and implement in src/")
+        print("3. Run pytest and iterate locally")
         
     except Exception as e:
         print(f"❌ Error running examples: {e}")

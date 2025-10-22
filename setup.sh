@@ -5,7 +5,7 @@
 echo "Setting up Perplexity-Alpaca Trading Integration..."
 
 # Create necessary directories
-mkdir -p cursor_tasks
+mkdir -p local_tasks
 mkdir -p logs
 mkdir -p data
 mkdir -p tests

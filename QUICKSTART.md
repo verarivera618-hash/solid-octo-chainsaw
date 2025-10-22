@@ -49,19 +49,18 @@ python main.py analyze --tickers AAPL --strategy momentum
 
 Output:
 ```
-📄 Prompt file: cursor_tasks/momentum_AAPL_20251020_143022.md
+📄 Prompt file: local_tasks/momentum_AAPL_20251020_143022.md
 📊 Strategy: Momentum Trading Strategy
 📈 Tickers: AAPL
 ⏰ Generated: 2025-10-20 14:30:22
 ```
 
-### Step 5: Use with Cursor Background Agent
+### Step 5: Use Locally (No external IDE required)
 
-1. **Open Cursor**: Press `Ctrl+Shift+B` (or `⌘B` on Mac)
-2. **New Agent**: Click "New Background Agent"
-3. **Copy Prompt**: Open the generated file from `cursor_tasks/`
-4. **Paste**: Paste into Cursor agent
-5. **Watch**: Agent creates a new branch and implements the strategy!
+1. **Open the generated prompt** under `local_tasks/`
+2. **Copy the content** and implement the described files under `src/`
+3. **Run tests**: `pytest -v`
+4. **Paper trade** only until validated
 
 ---
 
@@ -210,7 +209,7 @@ pytest tests/test_strategy.py -v
 1. ✅ **Read the full README.md** for detailed documentation
 2. ✅ **Explore the strategies** in `src/strategy.py`
 3. ✅ **Customize configuration** in `.env`
-4. ✅ **Review generated prompts** in `cursor_tasks/`
+4. ✅ **Review generated prompts** in `local_tasks/`
 5. ✅ **Test strategies** in paper trading before going live
 
 ---
@@ -220,7 +219,7 @@ pytest tests/test_strategy.py -v
 - **Documentation**: See `README.md`
 - **Perplexity API**: https://docs.perplexity.ai/
 - **Alpaca API**: https://docs.alpaca.markets/
-- **Cursor Agents**: https://forum.cursor.com/
+ 
 
 ---
 

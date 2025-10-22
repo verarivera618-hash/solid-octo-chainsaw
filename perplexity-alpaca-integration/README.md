@@ -1,23 +1,23 @@
 # Perplexity-Alpaca Trading Integration
 
-A comprehensive system that integrates Perplexity's finance data capabilities with Cursor background agents to automatically generate and implement trading strategies on Alpaca's platform.
+An integration that combines Perplexity's finance data with local prompt generation to implement trading strategies on Alpaca's platform—no external IDE dependencies required.
 
 ## 🎯 Overview
 
 This integration creates an automated workflow:
 
 1. **Perplexity API** → Real-time financial analysis (SEC filings, news, earnings)
-2. **Prompt Generator** → Converts analysis into structured Cursor agent prompts  
-3. **Cursor Background Agent** → Autonomously implements trading strategies
+2. **Prompt Generator** → Converts analysis into structured local prompts  
+3. **Local Implementation** → You implement strategies in your editor
 4. **Alpaca Trading** → Executes trades in paper/live environment
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
-│   Perplexity    │───▶│  Prompt Generator │───▶│ Cursor Agent    │
-│   Finance API   │    │                  │    │                 │
-└─────────────────┘    └──────────────────┘    └─────────────────┘
+┌─────────────────┐    ┌──────────────────┐    
+│   Perplexity    │───▶│  Prompt Generator │───▶ Local Implementation
+│   Finance API   │    │                  │    
+└─────────────────┘    └──────────────────┘    
                                                          │
 ┌─────────────────┐    ┌──────────────────┐             │
 │   Alpaca Data   │◄───│  Trading Bot     │◄────────────┘
@@ -75,13 +75,12 @@ python main.py --generate \
   --risk medium
 ```
 
-### 5. Use with Cursor Background Agent
+### 5. Use Locally
 
-1. Open Cursor IDE
-2. Press `Ctrl+Shift+B` (or `⌘B` on Mac)
-3. Click "New Background Agent"
-4. Copy the generated prompt from `cursor_tasks/` directory
-5. Let the agent implement your strategy!
+1. Open the generated prompt under `local_tasks/`
+2. Copy its content into your editor
+3. Implement the described files under `src/`
+4. Run tests with `pytest` and iterate locally
 
 ## 📊 Available Strategies
 
@@ -145,7 +144,7 @@ perplexity-alpaca-integration/
 ├── src/
 │   ├── config.py                 # Configuration management
 │   ├── perplexity_client.py      # Perplexity API client
-│   ├── prompt_generator.py       # Cursor prompt generation
+│   ├── prompt_generator.py       # Local prompt generation
 │   ├── alpaca_client.py          # Alpaca API integration
 │   └── strategy_base.py          # Trading strategy base classes
 ├── tests/
@@ -154,10 +153,8 @@ perplexity-alpaca-integration/
 │   └── test_integration.py       # Integration tests
 ├── examples/
 │   └── example_usage.py          # Usage examples
-├── cursor_tasks/                 # Generated Cursor prompts
+├── local_tasks/                  # Generated local prompts
 ├── logs/                         # Application logs
-├── .cursor/
-│   └── environment.json          # Cursor agent configuration
 ├── requirements.txt              # Python dependencies
 ├── main.py                       # Main orchestrator
 └── README.md                     # This file
