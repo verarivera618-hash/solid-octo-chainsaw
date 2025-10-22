@@ -3,8 +3,7 @@
  * Handles trade simulation with commission and slippage
  */
 
-import { Trade, Signal, Position } from '../types/index.js';
-import Decimal from 'decimal.js';
+import type { Trade, Signal, Position } from '../types/index.js';
 
 export class TradeExecutor {
   private readonly commission: number;

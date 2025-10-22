@@ -3,7 +3,7 @@
  * Provides comprehensive backtesting performance evaluation
  */
 
-import { BacktestResult, Trade } from '../types/index.js';
+import type { BacktestResult, Trade } from '../types/index.js';
 
 export class PerformanceAnalyzer {
   /**

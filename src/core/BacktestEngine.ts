@@ -3,7 +3,7 @@
  * Handles strategy execution, trade simulation, and performance calculation
  */
 
-import { BacktestConfig, BacktestResult, Strategy, Trade, Position, PriceData } from '../types/index.js';
+import type { BacktestConfig, BacktestResult, Strategy, Trade, Position, PriceData } from '../types/index.js';
 import { Portfolio } from './Portfolio.js';
 import { TradeExecutor } from './TradeExecutor.js';
 import { PerformanceAnalyzer } from '../analysis/PerformanceAnalyzer.js';

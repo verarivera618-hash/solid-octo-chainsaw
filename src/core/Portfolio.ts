@@ -3,7 +3,7 @@
  * Tracks positions, cash, and portfolio value over time
  */
 
-import { Position, Trade, PriceData } from '../types/index.js';
+import type { Position, Trade, PriceData } from '../types/index.js';
 import Decimal from 'decimal.js';
 
 export class Portfolio {
