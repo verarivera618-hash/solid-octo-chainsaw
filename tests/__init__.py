@@ -1,1 +1,3 @@
-"""Test suite for Perplexity-Alpaca integration"""
+"""
+Test package for Perplexity-Alpaca Trading Integration
+"""

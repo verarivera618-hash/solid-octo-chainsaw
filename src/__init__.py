@@ -1,7 +1,5 @@
 """
-Perplexity-Alpaca Trading Integration
-A system for integrating Perplexity's finance API with Alpaca trading
+Perplexity-Alpaca Trading Integration Package
 """
-
 __version__ = "1.0.0"
-__author__ = "Trading Bot"
+__author__ = "AI Trading Assistant"

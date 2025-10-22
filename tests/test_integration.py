@@ -1,148 +1,179 @@
 """
-Integration tests for the Perplexity-Alpaca system
-NOTE: These tests require valid API keys in .env
+Integration tests for the complete workflow
 """
-
 import pytest
+from unittest.mock import Mock, patch
+import sys
 import os
-from datetime import datetime, timedelta
 
-# Skip all tests if API keys not configured
-pytestmark = pytest.mark.skipif(
-    not os.getenv("ALPACA_API_KEY") or not os.getenv("PERPLEXITY_API_KEY"),
-    reason="API keys not configured"
-)
+# Add src to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
+from src.main import PerplexityAlpacaIntegration
 
-from alpaca.data.timeframe import TimeFrame
-from src.data_handler import AlpacaDataHandler
-from src.executor import OrderExecutor
-from src.perplexity_client import PerplexityFinanceClient
-
-
-class TestAlpacaDataHandler:
-    """Integration tests for Alpaca data handler"""
+class TestPerplexityAlpacaIntegration:
+    """Integration tests for the main workflow"""
     
-    @pytest.fixture
-    def data_handler(self):
-        """Create data handler instance"""
-        return AlpacaDataHandler()
+    def setup_method(self):
+        """Setup test fixtures"""
+        # Mock the configuration validation
+        with patch('src.config.Config.validate_config', return_value=True):
+            self.integration = PerplexityAlpacaIntegration()
     
-    def test_get_historical_bars(self, data_handler):
-        """Test fetching historical bar data"""
-        bars = data_handler.get_historical_bars(
-            symbols=['AAPL'],
-            timeframe=TimeFrame.Day,
-            start=datetime.now() - timedelta(days=10),
-            limit=10
-        )
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_sec_filings_analysis')
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_earnings_analysis')
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_technical_analysis')
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_sector_analysis')
+    @patch('src.alpaca_client.AlpacaDataClient.get_historical_bars')
+    @patch('src.prompt_generator.CursorPromptGenerator.save_prompt_to_file')
+    def test_analyze_and_generate_task_success(self, 
+                                             mock_save_prompt,
+                                             mock_get_bars,
+                                             mock_get_sector,
+                                             mock_get_technical,
+                                             mock_get_earnings,
+                                             mock_get_news,
+                                             mock_get_sec):
+        """Test successful complete workflow"""
+        # Mock all the API responses
+        mock_get_sec.return_value = {"choices": [{"message": {"content": "SEC analysis"}}]}
+        mock_get_news.return_value = {"choices": [{"message": {"content": "News analysis"}}]}
+        mock_get_earnings.return_value = {"choices": [{"message": {"content": "Earnings analysis"}}]}
+        mock_get_technical.return_value = {"choices": [{"message": {"content": "Technical analysis"}}]}
+        mock_get_sector.return_value = {"choices": [{"message": {"content": "Sector analysis"}}]}
+        mock_get_bars.return_value = {"AAPL": Mock()}
+        mock_save_prompt.return_value = "test_prompt_file.md"
         
-        assert 'AAPL' in bars
-        assert len(bars['AAPL']) > 0
-        assert 'close' in bars['AAPL'].columns
-    
-    def test_get_latest_quote(self, data_handler):
-        """Test getting latest quote"""
-        quotes = data_handler.get_latest_quote(['AAPL'])
+        # Mock the extract_content method
+        with patch.object(self.integration.perplexity_client, 'extract_content') as mock_extract:
+            mock_extract.side_effect = ["SEC analysis", "News analysis", "Earnings analysis", 
+                                      "Technical analysis", "Sector analysis"]
+            
+            # Mock the _format_price_data method
+            with patch.object(self.integration, '_format_price_data', return_value="Price data"):
+                result = self.integration.analyze_and_generate_task(
+                    tickers=["AAPL"],
+                    strategy_name="momentum"
+                )
         
-        assert 'AAPL' in quotes
-        assert hasattr(quotes['AAPL'], 'bid_price')
-        assert hasattr(quotes['AAPL'], 'ask_price')
+        # Verify the result
+        assert result == "test_prompt_file.md"
+        mock_save_prompt.assert_called_once()
     
-    def test_calculate_indicators(self, data_handler):
-        """Test technical indicator calculation"""
-        # Fetch data first
-        bars = data_handler.get_historical_bars(
-            symbols=['AAPL'],
-            timeframe=TimeFrame.Day,
-            limit=100
-        )
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_technical_analysis')
+    @patch('src.alpaca_client.AlpacaDataClient.get_historical_bars')
+    @patch('src.prompt_generator.CursorPromptGenerator.save_prompt_to_file')
+    def test_quick_analysis_success(self, 
+                                   mock_save_prompt,
+                                   mock_get_bars,
+                                   mock_get_technical,
+                                   mock_get_news):
+        """Test successful quick analysis workflow"""
+        # Mock API responses
+        mock_get_news.return_value = {"choices": [{"message": {"content": "News analysis"}}]}
+        mock_get_technical.return_value = {"choices": [{"message": {"content": "Technical analysis"}}]}
+        mock_get_bars.return_value = {"AAPL": Mock()}
+        mock_save_prompt.return_value = "quick_prompt_file.md"
         
-        # Calculate indicators
-        df = data_handler.calculate_indicators(
-            'AAPL',
-            indicators=['SMA_20', 'RSI', 'MACD']
-        )
+        # Mock the extract_content method
+        with patch.object(self.integration.perplexity_client, 'extract_content') as mock_extract:
+            mock_extract.side_effect = ["News analysis", "Technical analysis"]
+            
+            # Mock the _format_price_data method
+            with patch.object(self.integration, '_format_price_data', return_value="Price data"):
+                result = self.integration.quick_analysis("AAPL", "momentum")
         
-        assert 'SMA_20' in df.columns
-        assert 'RSI' in df.columns
-        assert 'MACD' in df.columns
+        # Verify the result
+        assert result == "quick_prompt_file.md"
+        mock_save_prompt.assert_called_once()
     
-    def test_get_price_summary(self, data_handler):
-        """Test price summary generation"""
-        # Fetch data first
-        data_handler.get_historical_bars(
-            symbols=['AAPL'],
-            timeframe=TimeFrame.Day,
-            limit=30
-        )
+    def test_determine_sector(self):
+        """Test sector determination logic"""
+        # Test tech tickers
+        assert self.integration._determine_sector("AAPL") == "technology"
+        assert self.integration._determine_sector("MSFT") == "technology"
+        assert self.integration._determine_sector("NVDA") == "technology"
         
-        summary = data_handler.get_price_summary('AAPL')
+        # Test non-tech tickers
+        assert self.integration._determine_sector("JNJ") == "general"
+        assert self.integration._determine_sector("WMT") == "general"
+    
+    def test_format_price_data(self):
+        """Test price data formatting"""
+        # Mock historical data
+        mock_df = Mock()
+        mock_df.empty = False
+        mock_df.iloc = [Mock(), Mock()]
+        mock_df.iloc[0].__getitem__.return_value = 100.0  # oldest close
+        mock_df.iloc[-1].__getitem__.return_value = 110.0  # latest close
+        mock_df['high'].max.return_value = 115.0
+        mock_df['low'].min.return_value = 95.0
+        mock_df['close'].pct_change.return_value.std.return_value = 0.02
+        mock_df['volume'].mean.return_value = 1000000
         
-        assert summary['symbol'] == 'AAPL'
-        assert 'latest_price' in summary
-        assert 'change_pct' in summary
-
-
-class TestOrderExecutor:
-    """Integration tests for order executor (paper trading only)"""
-    
-    @pytest.fixture
-    def executor(self):
-        """Create executor instance"""
-        return OrderExecutor(paper=True)
-    
-    def test_get_account(self, executor):
-        """Test getting account information"""
-        account = executor.get_account()
+        historical_data = {"AAPL": mock_df}
         
-        assert 'equity' in account
-        assert 'cash' in account
-        assert 'buying_power' in account
-        assert isinstance(account['equity'], float)
-    
-    def test_get_positions(self, executor):
-        """Test getting positions"""
-        positions = executor.get_positions()
+        result = self.integration._format_price_data(historical_data)
         
-        assert isinstance(positions, list)
+        assert "AAPL Price Analysis" in result
+        assert "Current Price" in result
+        assert "30-day Change" in result
+        assert "Volatility" in result
+        assert "Average Volume" in result
     
-    def test_get_position_summary(self, executor):
-        """Test position summary"""
-        summary = executor.get_position_summary()
+    def test_format_price_data_empty(self):
+        """Test price data formatting with empty data"""
+        result = self.integration._format_price_data({})
+        assert result == "No historical price data available"
+    
+    @patch('src.alpaca_client.AlpacaTradingClient.get_account')
+    @patch('src.alpaca_client.AlpacaTradingClient.get_positions')
+    def test_get_account_status(self, mock_get_positions, mock_get_account):
+        """Test account status retrieval"""
+        # Mock account and positions data
+        mock_get_account.return_value = {"account_id": "test", "equity": 100000}
+        mock_get_positions.return_value = [{"symbol": "AAPL", "qty": 100}]
         
-        assert 'total_positions' in summary
-        assert 'total_value' in summary
-        assert 'positions' in summary
-
-
-@pytest.mark.slow
-class TestPerplexityClient:
-    """
-    Integration tests for Perplexity client
-    WARNING: These tests cost money (API usage)
-    """
-    
-    @pytest.fixture
-    def client(self):
-        """Create Perplexity client"""
-        return PerplexityFinanceClient()
-    
-    @pytest.mark.skip(reason="Costs money - run manually")
-    def test_get_market_news(self, client):
-        """Test fetching market news"""
-        insights = client.get_market_news(['AAPL'])
+        result = self.integration.get_account_status()
         
-        assert insights.content is not None
-        assert len(insights.content) > 0
-        assert insights.query_type == 'market_news'
-        assert 'AAPL' in insights.tickers
+        assert "account" in result
+        assert "positions" in result
+        assert "timestamp" in result
+        assert result["account"]["account_id"] == "test"
+        assert len(result["positions"]) == 1
     
-    @pytest.mark.skip(reason="Costs money - run manually")
-    def test_get_sec_filings(self, client):
-        """Test SEC filings analysis"""
-        insights = client.get_sec_filings_analysis(['AAPL'])
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
+    @patch('src.alpaca_client.AlpacaTradingClient.get_account')
+    def test_test_connections_success(self, mock_get_account, mock_get_news):
+        """Test successful connection testing"""
+        # Mock successful responses
+        mock_get_news.return_value = {"choices": [{"message": {"content": "Test"}}]}
+        mock_get_account.return_value = {"account_id": "test"}
         
-        assert insights.content is not None
-        assert insights.query_type == 'sec_filings'
-        assert len(insights.sources) > 0
+        result = self.integration.test_connections()
+        
+        assert result is True
+    
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
+    def test_test_connections_perplexity_failure(self, mock_get_news):
+        """Test connection testing with Perplexity failure"""
+        # Mock Perplexity failure
+        mock_get_news.side_effect = Exception("Perplexity API Error")
+        
+        result = self.integration.test_connections()
+        
+        assert result is False
+    
+    @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
+    @patch('src.alpaca_client.AlpacaTradingClient.get_account')
+    def test_test_connections_alpaca_failure(self, mock_get_account, mock_get_news):
+        """Test connection testing with Alpaca failure"""
+        # Mock Perplexity success, Alpaca failure
+        mock_get_news.return_value = {"choices": [{"message": {"content": "Test"}}]}
+        mock_get_account.side_effect = Exception("Alpaca API Error")
+        
+        result = self.integration.test_connections()
+        
+        assert result is False

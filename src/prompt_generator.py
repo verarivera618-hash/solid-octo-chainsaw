@@ -1,599 +1,407 @@
 """
-Cursor Background Agent Prompt Generator
-Converts financial insights into actionable Cursor agent prompts
+Prompt generation layer for Cursor background agents
+Converts financial data into structured prompts for autonomous trading bot development
 """
-
 import os
 import json
-from typing import List, Dict, Optional
 from datetime import datetime
-from dataclasses import dataclass
+from typing import Dict, List, Any, Optional
+from .config import Config
 
-from src.perplexity_client import FinancialInsight
-from src.config import config
-
-import logging
-logger = logging.getLogger(__name__)
-
-
-@dataclass
-class CursorPrompt:
-    """Container for generated Cursor agent prompts"""
-    title: str
-    content: str
-    strategy_name: str
-    tickers: List[str]
-    timestamp: datetime
-    file_path: str
-    metadata: Dict
-
-
-class PromptGenerator:
-    """Generate Cursor background agent prompts from financial data"""
+class CursorPromptGenerator:
+    """Generates structured prompts for Cursor background agents"""
     
-    STRATEGY_TEMPLATES = {
-        "momentum": {
-            "name": "Momentum Trading Strategy",
-            "description": "Trend-following strategy based on price momentum and volume",
-            "indicators": ["RSI", "MACD", "Volume", "Moving Averages"],
-            "timeframe": "Intraday to Daily"
-        },
-        "mean_reversion": {
-            "name": "Mean Reversion Strategy",
-            "description": "Capitalize on price reversions to mean/support levels",
-            "indicators": ["Bollinger Bands", "RSI", "Standard Deviation"],
-            "timeframe": "Short-term (minutes to hours)"
-        },
-        "breakout": {
-            "name": "Breakout Trading Strategy",
-            "description": "Trade breakouts from consolidation patterns",
-            "indicators": ["Volume", "ATR", "Support/Resistance"],
-            "timeframe": "Daily to Weekly"
-        },
-        "news_driven": {
-            "name": "News-Driven Event Strategy",
-            "description": "Algorithmic response to news events and announcements",
-            "indicators": ["Sentiment Score", "Volume Spike", "Price Gap"],
-            "timeframe": "Immediate to Daily"
-        },
-        "earnings_play": {
-            "name": "Earnings Play Strategy",
-            "description": "Trade around earnings announcements based on historical patterns",
-            "indicators": ["Implied Volatility", "Historical Earnings Reaction", "Options Flow"],
-            "timeframe": "Days before/after earnings"
-        },
-        "sector_rotation": {
-            "name": "Sector Rotation Strategy",
-            "description": "Rotate between sectors based on relative strength",
-            "indicators": ["Relative Strength", "Sector ETF Performance", "Economic Indicators"],
-            "timeframe": "Weekly to Monthly"
-        }
-    }
-    
-    def __init__(self, tasks_dir: Optional[str] = None):
-        self.tasks_dir = tasks_dir or config.cursor_tasks_dir
+    def __init__(self):
+        self.tasks_dir = Config.CURSOR_TASKS_DIR
         os.makedirs(self.tasks_dir, exist_ok=True)
     
-    def generate_trading_strategy_prompt(
-        self,
-        sec_insights: Optional[FinancialInsight] = None,
-        news_insights: Optional[FinancialInsight] = None,
-        earnings_insights: Optional[FinancialInsight] = None,
-        sector_insights: Optional[FinancialInsight] = None,
-        price_data_summary: Optional[str] = None,
-        strategy_type: str = "momentum",
-        tickers: Optional[List[str]] = None,
-        custom_instructions: Optional[str] = None
-    ) -> CursorPrompt:
+    def generate_trading_strategy_prompt(self, 
+                                       market_data: Dict[str, Any],
+                                       strategy_type: str,
+                                       tickers: List[str],
+                                       additional_context: str = "") -> str:
         """
-        Generate comprehensive Cursor agent prompt for trading strategy
+        Generate a comprehensive prompt for Cursor background agent to implement trading strategy
         
         Args:
-            sec_insights: SEC filings analysis
-            news_insights: Market news insights
-            earnings_insights: Earnings analysis
-            sector_insights: Sector-wide analysis
-            price_data_summary: Recent price action summary
+            market_data: Dictionary containing all financial analysis data
             strategy_type: Type of strategy to implement
-            tickers: List of target tickers
-            custom_instructions: Additional custom requirements
-        
+            tickers: List of stock symbols
+            additional_context: Any additional context or requirements
+            
         Returns:
-            CursorPrompt object with complete prompt and metadata
+            Formatted prompt string for Cursor agent
         """
-        strategy_info = self.STRATEGY_TEMPLATES.get(
-            strategy_type, 
-            self.STRATEGY_TEMPLATES["momentum"]
-        )
         
-        # Aggregate tickers from all insights
-        all_tickers = set(tickers or [])
-        for insight in [sec_insights, news_insights, earnings_insights, sector_insights]:
-            if insight:
-                all_tickers.update(insight.tickers)
-        tickers_list = sorted(list(all_tickers))
+        # Extract data components
+        sec_analysis = market_data.get("sec_filings", "No SEC data available")
+        news_sentiment = market_data.get("news_sentiment", "No news data available")
+        earnings_analysis = market_data.get("earnings", "No earnings data available")
+        technical_analysis = market_data.get("technical", "No technical data available")
+        sector_analysis = market_data.get("sector", "No sector data available")
+        price_data = market_data.get("price_data", "No price data available")
         
-        # Build context section
-        context = self._build_context_section(
-            sec_insights, news_insights, earnings_insights, 
-            sector_insights, price_data_summary
-        )
-        
-        # Generate prompt content
-        prompt_content = f"""# Trading Strategy Implementation: {strategy_info['name']}
+        prompt = f"""# Advanced Trading Strategy Implementation Task
 
-## 📊 Market Context
+## 🎯 Mission
+Build a sophisticated Python trading bot on Alpaca's platform that implements a **{strategy_type}** strategy for {', '.join(tickers)} based on comprehensive financial analysis.
 
-{context}
+## 📊 Market Context & Analysis
 
-## 🎯 Strategy Overview
+### SEC Filings Analysis
+{sec_analysis}
 
-**Strategy Type:** {strategy_info['name']}
-**Description:** {strategy_info['description']}
-**Target Tickers:** {', '.join(tickers_list)}
-**Key Indicators:** {', '.join(strategy_info['indicators'])}
-**Timeframe:** {strategy_info['timeframe']}
+### Market News & Sentiment
+{news_sentiment}
 
-## 🛠️ Implementation Requirements
+### Earnings Analysis
+{earnings_analysis}
 
-### 1. Project Structure
-Create the following files with proper organization:
+### Technical Analysis
+{technical_analysis}
 
+### Sector Analysis
+{sector_analysis}
+
+### Recent Price Action
+{price_data}
+
+{additional_context}
+
+## 🏗️ Implementation Requirements
+
+### 1. Core Architecture
+Create a modular, production-ready trading system with the following components:
+
+**File Structure:**
 ```
-alpaca_trading_bot/
-├── src/
-│   ├── __init__.py
-│   ├── config.py              # Configuration and API keys
-│   ├── data_handler.py        # Alpaca data streaming
-│   ├── strategy.py            # Core trading logic
-│   ├── executor.py            # Order execution and management
-│   ├── risk_manager.py        # Risk management and position sizing
-│   └── logger.py              # Logging utilities
-├── tests/
-│   ├── test_strategy.py       # Strategy unit tests
-│   ├── test_executor.py       # Execution tests
-│   └── test_integration.py    # Integration tests
-├── backtest/
-│   └── backtest_runner.py     # Backtesting framework
-├── main.py                     # Main execution loop
-├── requirements.txt            # Dependencies
-└── README.md                   # Documentation
+src/
+├── config.py              # Configuration and API keys
+├── data_handler.py        # Alpaca data streaming and storage
+├── strategy.py            # Trading logic implementation
+├── risk_manager.py        # Risk management and position sizing
+├── executor.py            # Order execution and management
+├── portfolio_manager.py   # Portfolio tracking and rebalancing
+├── logger.py              # Comprehensive logging system
+└── main.py                # Main execution loop
 ```
 
-### 2. Data Integration (`data_handler.py`)
+### 2. Data Integration (data_handler.py)
+- **Real-time Data Streaming**: Use Alpaca's WebSocket API for live price feeds
+- **Historical Data**: Implement efficient data storage using pandas DataFrames
+- **Data Validation**: Add comprehensive data quality checks and error handling
+- **Performance Optimization**: Cache frequently accessed data and implement efficient data structures
 
-**Requirements:**
-- Use `alpaca-py` SDK (NOT deprecated alpaca-trade-api)
-- Implement WebSocket streaming for real-time data
-- Support both historical and live data fetching
-- Cache data efficiently using pandas DataFrames
-- Handle reconnections and error recovery
-
-**Key Features:**
 ```python
+# Example structure for data_handler.py
 class AlpacaDataHandler:
-    - async def stream_bars(symbols, timeframe)
-    - async def stream_trades(symbols)
-    - def get_historical_bars(symbols, start, end, timeframe)
-    - def get_latest_quote(symbol)
-    - def get_latest_trade(symbol)
+    def __init__(self, api_key, secret_key, paper=True):
+        # Initialize Alpaca clients
+        pass
+    
+    async def start_streaming(self, symbols):
+        # WebSocket streaming implementation
+        pass
+    
+    def get_historical_data(self, symbol, timeframe, start_date, end_date):
+        # Historical data retrieval
+        pass
+    
+    def calculate_technical_indicators(self, data):
+        # Technical analysis calculations
+        pass
 ```
 
-### 3. Strategy Implementation (`strategy.py`)
+### 3. Strategy Implementation (strategy.py)
+Implement the **{strategy_type}** strategy with the following features:
 
-Based on the market analysis above, implement:
+**Core Strategy Logic:**
+- **Entry Signals**: Based on technical indicators, fundamental analysis, and market sentiment
+- **Exit Signals**: Implement multiple exit conditions (profit targets, stop losses, time-based)
+- **Position Sizing**: Dynamic position sizing based on volatility and risk tolerance
+- **Market Regime Detection**: Adapt strategy based on market conditions (trending vs. ranging)
 
-**Entry Signals:**
-{self._generate_entry_logic(strategy_type, sec_insights, news_insights)}
+**Technical Indicators to Include:**
+- Moving averages (SMA, EMA, WMA)
+- Momentum indicators (RSI, MACD, Stochastic)
+- Volatility indicators (Bollinger Bands, ATR)
+- Volume analysis (Volume Profile, OBV)
+- Custom indicators based on the analysis above
 
-**Exit Signals:**
-{self._generate_exit_logic(strategy_type)}
+**Fundamental Integration:**
+- Incorporate earnings data and SEC filing insights
+- Use sentiment analysis for position timing
+- Factor in sector rotation and macro trends
 
-**Risk Management:**
-- Position sizing: {config.trading.max_position_size * 100}% of portfolio max
-- Stop loss: {config.trading.stop_loss_pct * 100}%
-- Take profit: {config.trading.take_profit_pct * 100}%
-- Max daily trades: {config.trading.max_daily_trades}
-- Risk per trade: {config.trading.risk_per_trade * 100}%
+### 4. Risk Management (risk_manager.py)
+Implement comprehensive risk management:
 
-**Strategy Class Structure:**
-```python
-class TradingStrategy:
-    def analyze(self, market_data) -> Signal
-    def calculate_position_size(self, account, signal) -> int
-    def should_enter(self, data) -> bool
-    def should_exit(self, position, data) -> bool
-    def get_stop_loss_price(self, entry_price, side) -> float
-    def get_take_profit_price(self, entry_price, side) -> float
-```
-
-### 4. Order Execution (`executor.py`)
-
-**Requirements:**
-- Use Alpaca Trading API for order management
-- Implement bracket orders (entry + stop loss + take profit)
-- Handle order rejections and partial fills
-- Track position state and P&L
-- Implement rate limiting (200 requests/minute for Alpaca)
-
-**Executor Features:**
-```python
-class OrderExecutor:
-    - def submit_bracket_order(symbol, qty, side, stop_loss, take_profit)
-    - def submit_market_order(symbol, qty, side)
-    - def cancel_order(order_id)
-    - def get_open_positions()
-    - def close_position(symbol)
-    - def get_account_info()
-```
-
-### 5. Risk Management (`risk_manager.py`)
-
-Implement comprehensive risk controls:
-- Portfolio-level position limits
-- Maximum drawdown checks
-- Daily loss limits
+**Position Sizing:**
+- Kelly Criterion for optimal position sizing
+- Maximum position size limits (configurable)
 - Correlation-based position limits
 - Volatility-adjusted position sizing
 
-### 6. Backtesting Framework
+**Risk Controls:**
+- Stop-loss orders (trailing and fixed)
+- Take-profit targets
+- Maximum drawdown limits
+- Daily loss limits
+- Sector concentration limits
 
-**Requirements:**
-- Use historical data from Alpaca
-- Simulate order execution with realistic slippage
-- Calculate performance metrics (Sharpe, Max DD, Win Rate)
-- Generate trade logs and visualizations
-- Support parameter optimization
+**Portfolio Management:**
+- Real-time P&L tracking
+- Risk-adjusted return calculations
+- Portfolio heat mapping
+- Rebalancing logic
 
-### 7. Main Execution Loop (`main.py`)
+### 5. Order Execution (executor.py)
+Robust order management system:
 
-**Workflow:**
-1. Initialize Alpaca connections (trading + data)
-2. Load strategy configuration
-3. Start real-time data streams
-4. Monitor for signals
-5. Execute trades based on strategy
-6. Update positions and risk metrics
-7. Log all activities
+**Order Types:**
+- Market orders for immediate execution
+- Limit orders for better pricing
+- Bracket orders for automated risk management
+- Stop orders for risk control
 
-**Features:**
-- Async/await for concurrent operations
-- Graceful shutdown handling
-- Health checks and monitoring
-- Paper trading mode (default)
-- Dry-run mode for testing
+**Execution Features:**
+- Order routing optimization
+- Slippage minimization
+- Fill quality analysis
+- Order status tracking and alerts
 
-## 📦 Dependencies
+### 6. Advanced Features
 
-Include in `requirements.txt`:
-```
-alpaca-py>=0.21.0
+**Machine Learning Integration:**
+- Implement basic ML models for signal enhancement
+- Use historical data for model training
+- Feature engineering from technical indicators
+- Model performance tracking
+
+**Backtesting Framework:**
+- Historical strategy testing
+- Walk-forward analysis
+- Monte Carlo simulation
+- Performance attribution analysis
+
+**Monitoring & Alerts:**
+- Real-time performance monitoring
+- Email/SMS alerts for important events
+- Dashboard for strategy performance
+- Log analysis and debugging tools
+
+## 🔧 Technical Specifications
+
+### Dependencies
+```python
+# Add to requirements.txt
+alpaca-py>=0.20.0
 pandas>=2.0.0
 numpy>=1.24.0
-python-dotenv>=1.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+websockets>=11.0.0
 asyncio>=3.4.3
-websockets>=12.0
-pytest>=7.4.0
-ta-lib>=0.4.28  # Technical analysis
+python-dotenv>=1.0.0
 ```
 
-## 🔐 Configuration
+### Configuration Management
+- Use environment variables for all sensitive data
+- Implement configuration validation
+- Support both paper and live trading modes
+- Easy strategy parameter adjustment
 
-Create `.env.example`:
-```
-ALPACA_API_KEY=your_key_here
-ALPACA_SECRET_KEY=your_secret_here
-ALPACA_PAPER_TRADING=true
+### Error Handling & Logging
+- Comprehensive error handling for all API calls
+- Structured logging with different levels
+- Automatic retry logic for failed operations
+- Graceful degradation when services are unavailable
 
-MAX_POSITION_SIZE=0.1
-STOP_LOSS_PCT=0.02
-TAKE_PROFIT_PCT=0.05
-MAX_DAILY_TRADES=10
-RISK_PER_TRADE=0.01
-```
+### Testing Requirements
+- Unit tests for all core functions
+- Integration tests with Alpaca API
+- Strategy backtesting validation
+- Performance benchmarking
 
-## ✅ Testing Requirements
+## 📈 Performance Targets
 
-### Unit Tests
-- Test strategy logic with historical data
-- Test order execution with mocked API
-- Test risk management calculations
-- Test data handler error recovery
+**Trading Performance:**
+- Target Sharpe ratio > 1.5
+- Maximum drawdown < 10%
+- Win rate > 55%
+- Profit factor > 1.3
 
-### Integration Tests
-- Test full workflow with paper trading
-- Test WebSocket connectivity
-- Test order lifecycle
-- Test position management
+**System Performance:**
+- Sub-second order execution
+- 99.9% uptime
+- Real-time data processing
+- Efficient memory usage
 
-### Performance Tests
-- Backtest on 6+ months of data
-- Achieve minimum Sharpe ratio > 1.0
-- Maximum drawdown < 15%
-- Win rate > 50% for this strategy type
+## 🚀 Implementation Steps
 
-## 🚀 Execution Instructions
+1. **Setup & Configuration**: Initialize Alpaca clients and configure environment
+2. **Data Pipeline**: Implement real-time data streaming and historical data access
+3. **Strategy Core**: Build the main trading logic based on the analysis above
+4. **Risk Management**: Implement comprehensive risk controls
+5. **Order Execution**: Build robust order management system
+6. **Testing & Validation**: Comprehensive testing and backtesting
+7. **Monitoring**: Real-time monitoring and alerting system
+8. **Documentation**: Complete documentation and usage examples
 
-1. **Setup:**
-   ```bash
-   pip install -r requirements.txt
-   cp .env.example .env
-   # Edit .env with your API keys
-   ```
+## ⚠️ Important Constraints
 
-2. **Run Tests:**
-   ```bash
-   pytest tests/ -v
-   ```
+- **Use alpaca-py library** (not deprecated alpaca-trade-api)
+- **Paper trading only** initially - no live trading without explicit approval
+- **Rate limiting** - respect Alpaca's API limits
+- **Error handling** - graceful handling of all edge cases
+- **Security** - never hardcode API keys or sensitive data
+- **Testing** - comprehensive testing before any live deployment
 
-3. **Backtest:**
-   ```bash
-   python backtest/backtest_runner.py --start 2024-01-01 --end 2024-10-20
-   ```
+## 🎯 Success Criteria
 
-4. **Paper Trading:**
-   ```bash
-   python main.py --mode paper
-   ```
+The implementation will be considered successful when:
+1. All core components are implemented and tested
+2. Strategy shows positive performance in backtesting
+3. Real-time data streaming works reliably
+4. Risk management prevents significant losses
+5. Code is production-ready with proper error handling
+6. Comprehensive documentation is provided
 
-5. **Live Trading** (after validation):
-   ```bash
-   python main.py --mode live --confirm
-   ```
+## 📝 Additional Notes
 
-## ⚠️ Critical Constraints
-
-1. **ALWAYS use paper trading** until strategy is validated
-2. **NEVER hardcode API keys** - use environment variables only
-3. **Implement circuit breakers** for rapid losses
-4. **Log every trade decision** with timestamp and reasoning
-5. **Handle API errors gracefully** with exponential backoff
-6. **Respect Alpaca rate limits** (200 req/min)
-7. **Use bracket orders** for automatic risk management
-8. **Validate all data** before trading decisions
-9. **Monitor account balance** before each trade
-10. **Implement emergency stop** for system failures
-
-{custom_instructions if custom_instructions else ""}
-
-## 📈 Expected Deliverables
-
-1. ✅ Fully functional trading bot with all required modules
-2. ✅ Comprehensive test suite with >80% coverage
-3. ✅ Backtesting results with performance metrics
-4. ✅ Detailed logging and error handling
-5. ✅ Documentation for setup and usage
-6. ✅ Risk management integration
-7. ✅ Paper trading validation results
-
-## 🎓 Implementation Notes
-
-Based on the financial analysis provided:
-{self._generate_implementation_notes(sec_insights, news_insights, earnings_insights)}
+- Focus on code quality and maintainability
+- Implement proper async/await patterns for WebSocket connections
+- Use type hints throughout the codebase
+- Follow PEP 8 style guidelines
+- Add comprehensive docstrings for all functions
+- Implement proper exception handling and logging
 
 ---
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-**Strategy:** {strategy_info['name']}
-**Tickers:** {', '.join(tickers_list)}
-**Environment:** Alpaca Paper Trading (default)
+**Generated on**: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+**Strategy Type**: {strategy_type}
+**Target Symbols**: {', '.join(tickers)}
+**Analysis Date**: {datetime.now().strftime("%Y-%m-%d")}
+
+This prompt provides comprehensive context for building a sophisticated trading system. The Cursor background agent should use this information to create a production-ready implementation that incorporates all the financial analysis and technical requirements specified above.
 """
-        
-        # Save prompt
-        strategy_name = f"{strategy_type}_{'_'.join(tickers_list[:3])}"
-        cursor_prompt = self._save_prompt(
-            prompt_content, 
-            strategy_name, 
-            strategy_info['name'],
-            tickers_list
-        )
-        
-        return cursor_prompt
-    
-    def _build_context_section(
-        self, 
-        sec_insights, 
-        news_insights, 
-        earnings_insights,
-        sector_insights, 
-        price_data_summary
-    ) -> str:
-        """Build comprehensive context section from all insights"""
-        sections = []
-        
-        if sec_insights:
-            sections.append(f"""### SEC Filings Analysis
-{sec_insights.content}
 
-**Sources:** {', '.join(sec_insights.sources[:3])}
-""")
+        return prompt
+    
+    def save_prompt_to_file(self, prompt: str, strategy_name: str, 
+                           tickers: List[str]) -> str:
+        """
+        Save the generated prompt to a file for Cursor background agent
         
-        if news_insights:
-            sections.append(f"""### Market News & Sentiment
-{news_insights.content}
+        Args:
+            prompt: The generated prompt string
+            strategy_name: Name of the strategy
+            tickers: List of tickers for the strategy
+            
+        Returns:
+            Path to the saved file
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{strategy_name}_{'_'.join(tickers)}_{timestamp}.md"
+        filepath = os.path.join(self.tasks_dir, filename)
+        
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(prompt)
+        
+        print(f"✅ Cursor prompt saved to: {filepath}")
+        return filepath
+    
+    def generate_quick_strategy_prompt(self, ticker: str, 
+                                     strategy_type: str = "momentum") -> str:
+        """
+        Generate a quick prompt for simple strategy implementation
+        
+        Args:
+            ticker: Stock symbol
+            strategy_type: Type of strategy
+            
+        Returns:
+            Simplified prompt string
+        """
+        prompt = f"""# Quick Trading Strategy Implementation
 
-**Sources:** {', '.join(news_insights.sources[:3])}
-""")
-        
-        if earnings_insights:
-            sections.append(f"""### Earnings Analysis
-{earnings_insights.content}
-""")
-        
-        if sector_insights:
-            sections.append(f"""### Sector Analysis
-{sector_insights.content}
-""")
-        
-        if price_data_summary:
-            sections.append(f"""### Recent Price Action
-{price_data_summary}
-""")
-        
-        return "\n\n".join(sections) if sections else "No market context provided."
-    
-    def _generate_entry_logic(
-        self, 
-        strategy_type: str, 
-        sec_insights, 
-        news_insights
-    ) -> str:
-        """Generate strategy-specific entry logic"""
-        
-        base_logic = {
-            "momentum": """
-- Price above 20-day and 50-day moving averages
-- RSI between 50-70 (bullish momentum, not overbought)
-- MACD line crosses above signal line
-- Volume 20% above 20-day average
-- Positive news sentiment from Perplexity analysis
-""",
-            "mean_reversion": """
-- Price touches lower Bollinger Band (oversold)
-- RSI below 30 (oversold condition)
-- No negative news catalysts in last 24 hours
-- Volume confirms reversal interest
-- Price within 5% of key support level
-""",
-            "breakout": """
-- Price breaks above consolidation range high
-- Volume exceeds 2x average on breakout bar
-- ATR showing increased volatility
-- No immediate resistance overhead
-- Sector showing relative strength
-""",
-            "news_driven": """
-- Positive earnings surprise or major announcement
-- Sentiment score > 0.7 from news analysis
-- Price gap up >2% on above-average volume
-- No conflicting negative news
-- Institutional buying detected
-""",
-            "earnings_play": """
-- Earnings date within 5 trading days
-- Historical earnings beat rate >60%
-- Implied volatility in bottom 50th percentile
-- Positive analyst revisions in last 30 days
-- Sector performing well relative to market
-""",
-            "sector_rotation": """
-- Sector outperforming S&P 500 by >5% over 30 days
-- Positive fundamental trends in SEC filings
-- Increasing institutional ownership
-- Economic indicators favorable for sector
-- Relative Strength Index (sector) > 60
-"""
-        }
-        
-        return base_logic.get(strategy_type, base_logic["momentum"])
-    
-    def _generate_exit_logic(self, strategy_type: str) -> str:
-        """Generate strategy-specific exit logic"""
-        
-        base_exit = f"""
-- Stop loss hit: {config.trading.stop_loss_pct * 100}% below entry
-- Take profit hit: {config.trading.take_profit_pct * 100}% above entry
-- Time-based exit: Close at end of trading day (for intraday)
-- Signal reversal: Entry conditions no longer valid
-- Risk-off event: Major negative news or market shock
-- Position size exceeds risk limits
-"""
-        return base_exit
-    
-    def _generate_implementation_notes(
-        self, 
-        sec_insights, 
-        news_insights, 
-        earnings_insights
-    ) -> str:
-        """Generate specific implementation notes based on insights"""
-        notes = []
-        
-        if sec_insights:
-            notes.append("- Monitor SEC filings for material changes or risk factor updates")
-        
-        if news_insights:
-            notes.append("- Integrate real-time news monitoring for rapid signal adjustment")
-        
-        if earnings_insights:
-            notes.append("- Adjust position sizing around earnings dates (increased volatility)")
-        
-        notes.extend([
-            "- Use Alpaca's bracket orders for automatic stop-loss/take-profit",
-            "- Implement exponential backoff for API rate limiting",
-            "- Log all trades with decision context for post-analysis",
-            "- Start with small position sizes in paper trading for validation"
-        ])
-        
-        return "\n".join(notes)
-    
-    def _save_prompt(
-        self, 
-        content: str, 
-        strategy_name: str,
-        strategy_title: str, 
-        tickers: List[str]
-    ) -> CursorPrompt:
-        """Save prompt to file and return CursorPrompt object"""
-        timestamp = datetime.now()
-        filename = f"{strategy_name}_{timestamp.strftime('%Y%m%d_%H%M%S')}.md"
-        file_path = os.path.join(self.tasks_dir, filename)
-        
-        with open(file_path, 'w') as f:
-            f.write(content)
-        
-        metadata = {
-            "created_at": timestamp.isoformat(),
-            "strategy_name": strategy_name,
-            "tickers": tickers,
-            "file_size": len(content)
-        }
-        
-        # Save metadata
-        metadata_path = file_path.replace('.md', '_metadata.json')
-        with open(metadata_path, 'w') as f:
-            json.dump(metadata, f, indent=2)
-        
-        logger.info(f"Cursor prompt saved to: {file_path}")
-        
-        return CursorPrompt(
-            title=strategy_title,
-            content=content,
-            strategy_name=strategy_name,
-            tickers=tickers,
-            timestamp=timestamp,
-            file_path=file_path,
-            metadata=metadata
-        )
-    
-    def generate_simple_prompt(
-        self, 
-        task_description: str,
-        context: Optional[str] = None
-    ) -> CursorPrompt:
-        """Generate a simple custom prompt"""
-        
-        content = f"""# Custom Trading Task
-
-## Task Description
-{task_description}
-
-## Context
-{context if context else "No additional context provided."}
+## Task
+Build a Python trading bot for {ticker} using a {strategy_type} strategy on Alpaca's platform.
 
 ## Requirements
-- Implement using Alpaca API with alpaca-py SDK
-- Include proper error handling and logging
-- Use paper trading environment for testing
-- Follow best practices for async/await patterns
+1. Connect to Alpaca's Market Data API
+2. Implement {strategy_type} trading logic
+3. Add basic risk management (stop-loss, take-profit)
+4. Use paper trading mode
+5. Include logging and error handling
 
----
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+## Files to Create
+- `config.py`: API configuration
+- `strategy.py`: Trading logic
+- `executor.py`: Order execution
+- `main.py`: Main execution loop
+
+## Implementation Notes
+- Use alpaca-py library
+- Implement proper async/await for WebSocket
+- Add comprehensive error handling
+- Include unit tests
+
+Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
+        return prompt
+    
+    def create_cursor_agent_instructions(self) -> str:
+        """
+        Create instructions for setting up Cursor background agents
         
-        return self._save_prompt(
-            content,
-            "custom_task",
-            "Custom Trading Task",
-            []
-        )
+        Returns:
+            Instructions string
+        """
+        instructions = f"""
+# Cursor Background Agent Setup Instructions
+
+## Prerequisites
+1. **Disable Privacy Mode** in Cursor settings
+2. **Enable usage-based spending** (minimum $10 funding)
+3. **Connect GitHub repository** with read-write privileges
+4. **Configure environment** with .cursor/environment.json
+
+## How to Use Generated Prompts
+
+### Method 1: Manual Launch
+1. Open Cursor and press `Ctrl+Shift+B` (or `⌘B` on Mac)
+2. Click "New Background Agent"
+3. Copy the contents of the generated prompt file
+4. Paste into the agent prompt field
+5. The agent will create a new branch and implement the strategy
+
+### Method 2: GitHub Issues (Workaround)
+1. Create a new GitHub issue with the prompt content
+2. Use Linear integration to delegate to Cursor agent
+3. The agent will process the issue and implement the solution
+
+### Method 3: Direct File Integration
+1. Place prompt files in the `{self.tasks_dir}/` directory
+2. Use Cursor's file-based agent triggers (if available)
+3. Monitor the agent's progress through the Cursor interface
+
+## Generated Files Location
+All generated prompts are saved in: `{os.path.abspath(self.tasks_dir)}/`
+
+## Next Steps After Agent Completion
+1. Review the generated code
+2. Test the implementation with paper trading
+3. Validate strategy performance
+4. Deploy to live trading (if approved)
+5. Monitor and optimize performance
+
+## Troubleshooting
+- Ensure all API keys are properly configured
+- Check Cursor agent logs for any errors
+- Verify Alpaca API connectivity
+- Test with small position sizes initially
+"""
+        return instructions

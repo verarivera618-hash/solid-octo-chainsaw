@@ -1,338 +1,317 @@
 # Perplexity-Alpaca Trading Integration
 
-A comprehensive system that integrates Perplexity's finance API with Cursor background agents and Alpaca trading platform for automated algorithmic trading.
+A sophisticated system that integrates Perplexity's live finance data with Cursor Background Agents to automatically generate and implement trading strategies on Alpaca's platform.
 
-## 🎯 Overview
+## 🚀 Overview
 
-This system provides a complete pipeline for:
-1. **Financial Intelligence**: Fetch real-time market data, SEC filings, earnings reports, and sentiment analysis from Perplexity
-2. **Automated Strategy Generation**: Convert financial insights into detailed Cursor background agent prompts
-3. **Algorithmic Trading**: Execute trades on Alpaca with multiple built-in strategies and risk management
+This system combines:
+- **Perplexity API** for real-time financial data, SEC filings, market sentiment, and technical analysis
+- **Cursor Background Agents** for autonomous trading bot development
+- **Alpaca Trading API** for paper and live trading execution
+- **Comprehensive risk management** and portfolio optimization
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────┐
-│  Perplexity API     │
-│  - SEC Filings      │
-│  - Market News      │
-│  - Earnings Data    │
-│  - Sector Analysis  │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Prompt Generator    │
-│ Creates Cursor      │
-│ Agent Tasks         │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│ Trading Strategies  │
-│ - Momentum          │
-│ - Mean Reversion    │
-│ - Breakout          │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────┐
-│  Alpaca Trading     │
-│  - Paper Trading    │
-│  - Live Trading     │
-│  - Risk Management  │
-└─────────────────────┘
+Perplexity API → Data Analysis → Prompt Generation → Cursor Agent → Trading Bot
+     ↓              ↓              ↓              ↓           ↓
+Financial Data → AI Analysis → Structured Prompt → Code Gen → Alpaca Trading
 ```
 
-## 📦 Installation
+## 📋 Features
+
+### Data Sources
+- **SEC Filings Analysis**: 10-K, 10-Q, 8-K filings with financial metrics extraction
+- **Real-time Market News**: Sentiment analysis and price-moving events
+- **Earnings Analysis**: Revenue trends, guidance, and analyst estimates
+- **Technical Analysis**: RSI, MACD, Bollinger Bands, and custom indicators
+- **Sector Analysis**: Industry trends and competitive landscape
+
+### Trading Capabilities
+- **Multi-strategy Support**: Momentum, mean reversion, breakout, and custom strategies
+- **Real-time Data Streaming**: WebSocket connections for live price feeds
+- **Risk Management**: Position sizing, stop-loss, take-profit, and drawdown limits
+- **Portfolio Optimization**: Kelly Criterion and correlation-based sizing
+- **Backtesting Framework**: Historical strategy validation and performance analysis
+
+### Cursor Integration
+- **Automated Prompt Generation**: Context-rich prompts for background agents
+- **Structured Implementation**: Complete file structure and requirements
+- **Testing Framework**: Unit tests and validation procedures
+- **Documentation**: Comprehensive code documentation and examples
+
+## 🛠️ Installation
 
 ### Prerequisites
+- Python 3.11+
+- Cursor IDE with Background Agents enabled
+- Perplexity API key
+- Alpaca Trading API credentials
 
-- Python 3.11 or higher
-- Perplexity API key ([Get one here](https://www.perplexity.ai/api-platform))
-- Alpaca API keys ([Sign up here](https://alpaca.markets/))
+### Setup
 
-### Quick Start
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd perplexity-alpaca-trading
+```
 
-1. **Clone or download this repository**
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
 
-2. **Run the setup script**:
-   ```bash
-   chmod +x setup.sh
-   ./setup.sh
-   ```
+3. **Configure environment**
+```bash
+cp .env.example .env
+# Edit .env with your API keys
+```
 
-3. **Configure your API keys**:
-   Edit `.env` file with your credentials:
-   ```bash
-   PERPLEXITY_API_KEY=pplx-xxxxx
-   ALPACA_API_KEY=PKxxxxx
-   ALPACA_SECRET_KEY=xxxxx
-   ALPACA_PAPER_TRADING=true
-   ```
+4. **Run setup script**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
 
-4. **Test the installation**:
-   ```bash
-   source venv/bin/activate
-   python main.py test --tickers AAPL
-   ```
+## 🔧 Configuration
+
+### Environment Variables
+
+Create a `.env` file with the following variables:
+
+```env
+# Perplexity API Configuration
+PERPLEXITY_API_KEY=your_perplexity_api_key_here
+
+# Alpaca Trading Configuration
+ALPACA_API_KEY=your_alpaca_api_key_here
+ALPACA_SECRET_KEY=your_alpaca_secret_key_here
+ALPACA_BASE_URL=https://paper-api.alpaca.markets  # Use https://api.alpaca.markets for live trading
+
+# Trading Configuration
+DEFAULT_STRATEGY=semiconductor_momentum
+PAPER_TRADING=true
+MAX_POSITION_SIZE=0.1  # 10% of portfolio per position
+RISK_TOLERANCE=0.02    # 2% stop loss
+```
+
+### Cursor Configuration
+
+The `.cursor/environment.json` file is pre-configured for optimal background agent performance:
+
+```json
+{
+  "dockerfile": "Dockerfile",
+  "setup_script": "setup.sh",
+  "install_commands": ["pip install -r requirements.txt"],
+  "terminal_commands": ["python main.py --test"],
+  "environment_variables": {
+    "PYTHONPATH": "${workspaceFolder}/src"
+  }
+}
+```
 
 ## 🚀 Usage
 
-### Mode 1: Generate Cursor Background Agent Prompts
+### Basic Usage
 
-Analyze stocks and generate comprehensive prompts for Cursor agents:
-
+1. **Test API connections**
 ```bash
-# Basic analysis with momentum strategy
-python main.py analyze --tickers AMD NVDA INTC --strategy momentum
-
-# Include SEC filings and earnings analysis
-python main.py analyze \
-  --tickers AAPL MSFT GOOGL \
-  --strategy breakout \
-  --include-earnings \
-  --include-sector
-
-# Skip SEC filings (faster, less comprehensive)
-python main.py analyze \
-  --tickers TSLA \
-  --strategy mean_reversion \
-  --no-sec
+python main.py --test
 ```
 
-**Output**: Creates a detailed markdown file in `cursor_tasks/` that you can copy into Cursor's background agent interface.
-
-### Mode 2: Live Trading (Paper Trading Recommended)
-
-Run automated trading with real-time data:
-
+2. **Check account status**
 ```bash
-# Dry run (simulated trades, no execution)
-python main.py trade \
-  --tickers AAPL MSFT \
-  --strategy momentum \
-  --dry-run
-
-# Live paper trading (safe - uses Alpaca paper account)
-python main.py trade \
-  --tickers SPY QQQ \
-  --strategy momentum
-
-# WARNING: Real money trading (requires confirmation)
-# Set ALPACA_PAPER_TRADING=false in .env first
-python main.py trade --tickers AAPL --strategy momentum
+python main.py --status
 ```
 
-### Mode 3: Testing and Validation
-
+3. **Generate trading strategy**
 ```bash
-# Test API connections
-python main.py test --tickers SPY
+python main.py --tickers AAPL MSFT --strategy momentum
+```
 
-# Run unit tests
-pytest tests/ -v
+4. **Quick analysis**
+```bash
+python main.py --tickers AAPL --strategy momentum --quick
+```
+
+### Advanced Usage
+
+#### Comprehensive Analysis
+```python
+from src.main import PerplexityAlpacaIntegration
+
+# Initialize integration
+integration = PerplexityAlpacaIntegration()
+
+# Generate complete trading strategy
+prompt_file = integration.analyze_and_generate_task(
+    tickers=["AAPL", "MSFT", "NVDA"],
+    strategy_name="semiconductor_momentum",
+    additional_context="Focus on AI and cloud computing trends"
+)
+```
+
+#### Custom Strategy Development
+```python
+# Generate custom strategy prompt
+market_data = {
+    "sec_filings": "Custom SEC analysis",
+    "news_sentiment": "Custom sentiment data",
+    "technical": "Custom technical analysis",
+    "sector": "Custom sector analysis",
+    "price_data": "Custom price data"
+}
+
+prompt = integration.prompt_generator.generate_trading_strategy_prompt(
+    market_data=market_data,
+    strategy_type="custom_strategy",
+    tickers=["AAPL"],
+    additional_context="Custom requirements"
+)
+```
+
+### Using Cursor Background Agents
+
+1. **Open Cursor** and press `Ctrl+Shift+B` (or `⌘B` on Mac)
+2. **Click "New Background Agent"**
+3. **Copy the contents** of the generated prompt file from `cursor_tasks/`
+4. **Paste into the agent prompt field**
+5. **The agent will create a new branch** and implement the strategy
+
+## 📊 Generated Trading Bots
+
+The Cursor background agents will generate complete trading systems with:
+
+### Core Files
+- `config.py`: API configuration and settings
+- `data_handler.py`: Real-time data streaming and storage
+- `strategy.py`: Trading logic implementation
+- `risk_manager.py`: Risk management and position sizing
+- `executor.py`: Order execution and management
+- `portfolio_manager.py`: Portfolio tracking and rebalancing
+- `logger.py`: Comprehensive logging system
+- `main.py`: Main execution loop
+
+### Features
+- **Real-time Data Streaming**: WebSocket connections for live price feeds
+- **Technical Indicators**: RSI, MACD, Bollinger Bands, ATR, and custom indicators
+- **Risk Management**: Kelly Criterion, stop-loss, take-profit, and drawdown limits
+- **Order Management**: Market, limit, and bracket orders
+- **Backtesting**: Historical strategy validation
+- **Monitoring**: Real-time performance tracking and alerts
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest -m unit
+pytest -m integration
 
 # Run with coverage
-pytest tests/ --cov=src --cov-report=html
+pytest --cov=src
 ```
 
-## 📊 Available Strategies
+### Test Structure
+- `tests/test_perplexity_client.py`: Perplexity API client tests
+- `tests/test_alpaca_client.py`: Alpaca trading client tests
+- `tests/test_prompt_generator.py`: Prompt generation tests
+- `tests/test_integration.py`: End-to-end workflow tests
 
-### 1. Momentum Strategy
-- **Best for**: Trending markets
-- **Entry**: Price above moving averages, RSI 50-70, MACD crossover, volume surge
-- **Exit**: RSI > 70 or price below SMA_20
-- **Risk**: 2% stop loss, 5% take profit
+## 📈 Performance Monitoring
 
-### 2. Mean Reversion Strategy
-- **Best for**: Range-bound markets
-- **Entry**: Price at Bollinger Band extremes, RSI oversold/overbought
-- **Exit**: Return to mean or opposite extreme
-- **Risk**: Tight stop losses due to volatility
+### Key Metrics
+- **Sharpe Ratio**: Target > 1.5
+- **Maximum Drawdown**: Target < 10%
+- **Win Rate**: Target > 55%
+- **Profit Factor**: Target > 1.3
 
-### 3. Breakout Strategy
-- **Best for**: Consolidation periods
-- **Entry**: Price breaks consolidation range with volume
-- **Exit**: Failed breakout or profit target
-- **Risk**: Moderate, confirmed by volume
+### Monitoring Tools
+- Real-time P&L tracking
+- Risk-adjusted return calculations
+- Portfolio heat mapping
+- Performance attribution analysis
 
-## 🛠️ Project Structure
+## 🔒 Security & Risk Management
 
-```
-.
-├── src/
-│   ├── config.py              # Configuration management
-│   ├── perplexity_client.py   # Perplexity API integration
-│   ├── prompt_generator.py    # Cursor prompt generation
-│   ├── data_handler.py        # Alpaca data streaming
-│   ├── strategy.py            # Trading strategies
-│   └── executor.py            # Order execution
-├── tests/
-│   ├── test_strategy.py       # Strategy unit tests
-│   └── test_integration.py    # Integration tests
-├── cursor_tasks/              # Generated prompts
-├── logs/                      # Trading logs
-├── main.py                    # Main orchestrator
-├── requirements.txt           # Python dependencies
-├── Dockerfile                 # Container setup
-└── .env.example               # Environment template
-```
+### Security Features
+- Environment variable configuration
+- No hardcoded API keys
+- Secure credential management
+- Paper trading by default
 
-## 🔐 Configuration
+### Risk Controls
+- Position size limits
+- Daily loss limits
+- Maximum drawdown controls
+- Sector concentration limits
+- Correlation-based position limits
 
-Edit `.env` file to customize:
+## 🚨 Important Notes
 
-```bash
-# Risk Management
-MAX_POSITION_SIZE=0.1      # Max 10% per position
-STOP_LOSS_PCT=0.02         # 2% stop loss
-TAKE_PROFIT_PCT=0.05       # 5% take profit
-MAX_DAILY_TRADES=10        # Daily trade limit
-RISK_PER_TRADE=0.01        # 1% account risk per trade
+### Cursor Requirements
+- **Privacy Mode must be disabled** for background agents
+- **Usage-based spending enabled** (minimum $10 funding)
+- **GitHub repository connected** with read-write privileges
 
-# Logging
-LOG_LEVEL=INFO             # DEBUG for verbose output
-LOG_FILE=logs/trading.log
-```
+### Trading Considerations
+- **Paper trading only** initially - no live trading without explicit approval
+- **Rate limiting** - respect Alpaca's API limits
+- **Error handling** - comprehensive error handling for all operations
+- **Testing** - thorough testing before live deployment
 
-## 🎓 How to Use with Cursor Background Agents
+## 📚 API Documentation
 
-1. **Generate a prompt**:
-   ```bash
-   python main.py analyze --tickers AMD --strategy momentum
-   ```
+### Perplexity API
+- [Perplexity API Documentation](https://docs.perplexity.ai/)
+- [Financial Data Access](https://docs.perplexity.ai/llms-full.txt)
+- [SEC Filings Integration](https://docs.perplexity.ai/cookbook/examples/financial-news-tracker/README)
 
-2. **Open Cursor**:
-   - Press `Ctrl+Shift+B` (or `⌘B` on Mac)
-   - Click "New Background Agent"
+### Alpaca API
+- [Alpaca Trading API](https://alpaca.markets/sdks/python/)
+- [Market Data API](https://docs.alpaca.markets/docs/sdks-and-tools)
+- [WebSocket Streaming](https://alpaca.markets/learn/algorithmic-trading-python-alpaca)
 
-3. **Copy the generated prompt**:
-   - Open the file from `cursor_tasks/`
-   - Copy entire contents
-
-4. **Paste into Cursor**:
-   - Agent will automatically create a new branch
-   - Implement the strategy
-   - Run tests
-   - Provide you with working code
-
-5. **Review and deploy**:
-   - Review the generated code
-   - Test in paper trading
-   - Merge when satisfied
-
-## 📈 Example Workflow
-
-```bash
-# 1. Analyze semiconductor stocks
-python main.py analyze \
-  --tickers AMD NVDA INTC \
-  --strategy momentum \
-  --include-earnings \
-  --include-sector
-
-# Output: cursor_tasks/momentum_AMD_NVDA_INTC_20251020_143022.md
-
-# 2. Use Cursor agent to implement the strategy
-# (Agent creates src/strategies/semiconductor_momentum.py)
-
-# 3. Backtest the generated strategy
-python backtest/backtest_runner.py \
-  --strategy semiconductor_momentum \
-  --start 2024-01-01 \
-  --end 2024-10-20
-
-# 4. Run in paper trading
-python main.py trade \
-  --tickers AMD NVDA INTC \
-  --strategy momentum \
-  --dry-run
-```
-
-## ⚠️ Important Safety Notes
-
-### ⚡ ALWAYS USE PAPER TRADING FIRST
-- Set `ALPACA_PAPER_TRADING=true` in `.env`
-- Validate strategies for at least 30 days
-- Never trade with money you can't afford to lose
-
-### 🔒 API Security
-- Never commit `.env` file to git
-- Use environment variables for all keys
-- Rotate keys regularly
-- Use separate keys for paper/live trading
-
-### 📉 Risk Management
-- Respect position size limits
-- Use stop losses on every trade
-- Monitor for rapid losses
-- Implement circuit breakers
-
-### 🧪 Testing Requirements
-- Run unit tests before deployment
-- Backtest on 6+ months of data
-- Validate in paper trading
-- Monitor for at least 2 weeks live
-
-## 🔧 Troubleshooting
-
-### API Connection Issues
-```bash
-# Test Alpaca connection
-python -c "from src.executor import OrderExecutor; print(OrderExecutor().get_account())"
-
-# Test Perplexity (costs API credits!)
-python -c "from src.perplexity_client import PerplexityFinanceClient; \
-  print(PerplexityFinanceClient().get_market_news(['AAPL']))"
-```
-
-### Module Import Errors
-```bash
-# Ensure PYTHONPATH is set
-export PYTHONPATH=/path/to/project:$PYTHONPATH
-
-# Or activate virtual environment
-source venv/bin/activate
-```
-
-### Rate Limiting
-- Alpaca: 200 requests/minute
-- Perplexity: Varies by plan
-- System includes automatic rate limiting
-
-## 📚 Documentation
-
-- [Perplexity API Docs](https://docs.perplexity.ai/)
-- [Alpaca API Docs](https://docs.alpaca.markets/)
-- [Cursor Background Agents](https://forum.cursor.com/t/cursor-background-agents/)
+### Cursor Background Agents
+- [Background Agents Guide](https://lgallardo.com/2025/06/11/cursor-background-agents-experience/)
+- [Setup Instructions](https://madewithlove.com/blog/using-cursor-background-agents/)
 
 ## 🤝 Contributing
 
-This is a background agent project. To contribute:
 1. Fork the repository
 2. Create a feature branch
-3. Add tests for new features
-4. Ensure all tests pass
+3. Make your changes
+4. Add tests for new functionality
 5. Submit a pull request
 
-## 📝 License
+## 📄 License
 
-MIT License - See LICENSE file for details
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## ⚖️ Disclaimer
+## ⚠️ Disclaimer
 
-**This software is for educational purposes only.**
+This software is for educational and research purposes only. Trading involves substantial risk of loss and is not suitable for all investors. Past performance is not indicative of future results. Always consult with a qualified financial advisor before making investment decisions.
 
-- NOT financial advice
-- Use at your own risk
-- Past performance ≠ future results
-- Algorithmic trading involves substantial risk
-- Consult a financial advisor before trading
-- The authors assume no liability for trading losses
+## 🆘 Support
+
+For issues and questions:
+1. Check the documentation
+2. Review the test cases
+3. Open an issue on GitHub
+4. Contact the development team
+
+## 🔄 Updates
+
+### Version 1.0.0
+- Initial release with Perplexity-Alpaca integration
+- Cursor background agent support
+- Comprehensive testing framework
+- Complete documentation
 
 ---
 
-**Built with**: Python • Alpaca API • Perplexity AI • Cursor Background Agents
-
-**Happy Trading! 🚀📈**
+**Built with ❤️ for algorithmic trading and AI automation**
