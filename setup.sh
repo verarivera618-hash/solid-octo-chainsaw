@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+python -m pip install --upgrade pip
+pip install -r requirements.txt
 #!/bin/bash
 # Setup script for Perplexity-Alpaca Trading Integration
 
