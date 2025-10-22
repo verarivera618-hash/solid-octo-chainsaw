@@ -44,7 +44,7 @@ class CursorPromptGenerator:
         prompt = f"""# Advanced Trading Strategy Implementation Task
 
 ## 🎯 Mission
-Build a sophisticated Python trading bot on Alpaca's platform that implements a **{strategy_type}** strategy for {', '.join(tickers)} based on comprehensive financial analysis.
+Build a sophisticated Python trading bot using local simulation that implements a **{strategy_type}** strategy for {', '.join(tickers)} based on comprehensive financial analysis.
 
 ## 📊 Market Context & Analysis
 

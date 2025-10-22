@@ -1,5 +1,5 @@
 """
-Main entry point for Perplexity-Alpaca Trading Integration
+Main entry point for Local Trading System
 """
 import sys
 import os

@@ -1,6 +1,7 @@
 """
-Main orchestrator for Perplexity-Alpaca Trading Integration
-Combines financial data analysis with automated trading bot generation
+Main orchestrator for Local Trading System
+Combines local data analysis with automated trading bot generation
+No external API dependencies - fully local operation
 """
 import asyncio
 import argparse
@@ -8,22 +9,21 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from .config import Config
-from .perplexity_client import PerplexityFinanceClient
-from .prompt_generator import CursorPromptGenerator
-from .alpaca_client import AlpacaDataClient, AlpacaTradingClient
+from .local_data_provider import LocalDataProvider
+from .local_prompt_generator import LocalPromptGenerator
+from .local_trading_client import LocalTradingClient
 
-class PerplexityAlpacaIntegration:
-    """Main integration class that orchestrates the entire workflow"""
+class LocalTradingIntegration:
+    """Main integration class that orchestrates the entire workflow using local data"""
     
     def __init__(self):
-        self.perplexity_client = PerplexityFinanceClient()
-        self.prompt_generator = CursorPromptGenerator()
-        self.alpaca_data_client = AlpacaDataClient()
-        self.alpaca_trading_client = AlpacaTradingClient(paper=Config.PAPER_TRADING)
+        self.data_provider = LocalDataProvider()
+        self.prompt_generator = LocalPromptGenerator()
+        self.trading_client = LocalTradingClient(paper=Config.PAPER_TRADING, initial_cash=Config.INITIAL_CASH)
         
         # Validate configuration
         if not Config.validate_config():
-            raise ValueError("Invalid configuration. Please check your API keys.")
+            raise ValueError("Invalid configuration.")
     
     def analyze_and_generate_task(self, 
                                  tickers: List[str], 
@@ -42,35 +42,27 @@ class PerplexityAlpacaIntegration:
         """
         print(f"🚀 Starting analysis for {', '.join(tickers)} with {strategy_name} strategy")
         
-        # Step 1: Get comprehensive financial data from Perplexity
-        print("📊 Fetching SEC filings analysis...")
-        sec_response = self.perplexity_client.get_sec_filings_analysis(tickers)
-        sec_analysis = self.perplexity_client.extract_content(sec_response)
+        # Step 1: Get comprehensive financial data from local provider
+        print("📊 Generating SEC filings analysis...")
+        sec_analysis = self.data_provider.get_sec_filings_analysis(tickers)
         
-        print("📰 Fetching market news and sentiment...")
-        news_response = self.perplexity_client.get_market_news_sentiment(tickers)
-        news_analysis = self.perplexity_client.extract_content(news_response)
+        print("📰 Generating market news and sentiment...")
+        news_analysis = self.data_provider.get_market_news_sentiment(tickers)
         
-        print("💰 Fetching earnings analysis...")
-        earnings_response = self.perplexity_client.get_earnings_analysis(tickers)
-        earnings_analysis = self.perplexity_client.extract_content(earnings_response)
+        print("💰 Generating earnings analysis...")
+        earnings_analysis = self.data_provider.get_earnings_analysis(tickers)
         
-        print("📈 Fetching technical analysis...")
-        technical_response = self.perplexity_client.get_technical_analysis(tickers)
-        technical_analysis = self.perplexity_client.extract_content(technical_response)
+        print("📈 Generating technical analysis...")
+        technical_analysis = self.data_provider.get_technical_analysis(tickers)
         
-        # Step 2: Get sector analysis (assuming all tickers are in the same sector)
-        print("🏭 Fetching sector analysis...")
-        sector = self._determine_sector(tickers[0])  # Simple sector determination
-        sector_response = self.perplexity_client.get_sector_analysis(sector)
-        sector_analysis = self.perplexity_client.extract_content(sector_response)
+        # Step 2: Get sector analysis
+        print("🏭 Generating sector analysis...")
+        sector = self._determine_sector(tickers[0])
+        sector_analysis = self.data_provider.get_sector_analysis(sector)
         
-        # Step 3: Get historical price data from Alpaca
-        print("📊 Fetching historical price data from Alpaca...")
-        historical_data = self.alpaca_data_client.get_historical_bars(
-            tickers, 
-            start_date=datetime.now() - timedelta(days=30)
-        )
+        # Step 3: Generate historical price data
+        print("📊 Generating historical price data...")
+        historical_data = self.data_provider.generate_historical_data(tickers, Config.DATA_DAYS)
         
         # Step 4: Calculate technical indicators
         print("🔧 Calculating technical indicators...")
@@ -122,14 +114,11 @@ class PerplexityAlpacaIntegration:
         print(f"⚡ Quick analysis for {ticker} with {strategy_type} strategy")
         
         # Get basic market data
-        news_response = self.perplexity_client.get_market_news_sentiment([ticker], hours_back=48)
-        news_analysis = self.perplexity_client.extract_content(news_response)
-        
-        technical_response = self.perplexity_client.get_technical_analysis([ticker])
-        technical_analysis = self.perplexity_client.extract_content(technical_response)
+        news_analysis = self.data_provider.get_market_news_sentiment([ticker], hours_back=48)
+        technical_analysis = self.data_provider.get_technical_analysis([ticker])
         
         # Get price data
-        historical_data = self.alpaca_data_client.get_historical_bars([ticker])
+        historical_data = self.data_provider.generate_historical_data([ticker], Config.DATA_DAYS)
         price_data = self._format_price_data(historical_data)
         
         # Generate quick prompt
@@ -208,9 +197,9 @@ class PerplexityAlpacaIntegration:
         print("="*60)
     
     def get_account_status(self) -> Dict[str, Any]:
-        """Get current Alpaca account status"""
-        account = self.alpaca_trading_client.get_account()
-        positions = self.alpaca_trading_client.get_positions()
+        """Get current account status"""
+        account = self.trading_client.get_account()
+        positions = self.trading_client.get_positions()
         
         return {
             "account": account,
@@ -219,62 +208,66 @@ class PerplexityAlpacaIntegration:
         }
     
     def test_connections(self) -> bool:
-        """Test all API connections"""
-        print("🔍 Testing API connections...")
+        """Test local system components"""
+        print("🔍 Testing local system components...")
         
-        # Test Perplexity
+        # Test data provider
         try:
-            test_response = self.perplexity_client.get_market_news_sentiment(["AAPL"], hours_back=1)
-            if "error" not in test_response:
-                print("✅ Perplexity API: Connected")
+            test_data = self.data_provider.generate_historical_data(["AAPL"], 5)
+            if test_data and "AAPL" in test_data:
+                print("✅ Local Data Provider: Working")
             else:
-                print("❌ Perplexity API: Failed")
+                print("❌ Local Data Provider: Failed")
                 return False
         except Exception as e:
-            print(f"❌ Perplexity API: Error - {e}")
+            print(f"❌ Local Data Provider: Error - {e}")
             return False
         
-        # Test Alpaca
+        # Test trading client
         try:
-            account = self.alpaca_trading_client.get_account()
+            account = self.trading_client.get_account()
             if account:
-                print("✅ Alpaca API: Connected")
+                print("✅ Local Trading Client: Working")
             else:
-                print("❌ Alpaca API: Failed")
+                print("❌ Local Trading Client: Failed")
                 return False
         except Exception as e:
-            print(f"❌ Alpaca API: Error - {e}")
+            print(f"❌ Local Trading Client: Error - {e}")
             return False
         
-        print("🎉 All connections successful!")
+        print("🎉 All local components working!")
         return True
 
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description="Perplexity-Alpaca Trading Integration")
+    parser = argparse.ArgumentParser(description="Local Trading System")
     parser.add_argument("--tickers", nargs="+", help="Stock symbols to analyze")
     parser.add_argument("--strategy", default="momentum", help="Trading strategy type")
     parser.add_argument("--quick", action="store_true", help="Quick analysis mode")
-    parser.add_argument("--test", action="store_true", help="Test API connections")
+    parser.add_argument("--test", action="store_true", help="Test local system")
     parser.add_argument("--status", action="store_true", help="Show account status")
+    parser.add_argument("--reset", action="store_true", help="Reset trading account")
     
     args = parser.parse_args()
     
     try:
-        integration = PerplexityAlpacaIntegration()
+        integration = LocalTradingIntegration()
         
         if args.test:
             integration.test_connections()
         elif args.status:
             status = integration.get_account_status()
             print(json.dumps(status, indent=2))
+        elif args.reset:
+            integration.trading_client.reset_account()
+            print("✅ Account reset successfully")
         elif args.quick and args.tickers:
             for ticker in args.tickers:
                 integration.quick_analysis(ticker, args.strategy)
         elif args.tickers:
             integration.analyze_and_generate_task(args.tickers, args.strategy)
         else:
-            print("Please specify tickers to analyze or use --test/--status")
+            print("Please specify tickers to analyze or use --test/--status/--reset")
             print("Example: python -m src.main --tickers AAPL MSFT --strategy momentum")
     
     except Exception as e:
