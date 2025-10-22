@@ -1,18 +1,125 @@
 """
 Alpaca Trading API client for data streaming and order execution
+
+Local-first: gracefully degrades to local simulation when Alpaca SDK/keys are unavailable.
 """
 import asyncio
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any, Callable
-from alpaca.data import StockHistoricalDataClient, StockBarsRequest
-from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
-from alpaca.data.live import StockDataStream
-from alpaca.trading.client import TradingClient
-from alpaca.trading.requests import MarketOrderRequest, LimitOrderRequest, BracketOrderRequest
-from alpaca.trading.enums import OrderSide, TimeInForce, OrderClass
-from alpaca.trading.models import Position, Order
+
+try:
+    from alpaca.data import StockHistoricalDataClient, StockBarsRequest
+    from alpaca.data.timeframe import TimeFrame, TimeFrameUnit
+    from alpaca.data.live import StockDataStream
+    from alpaca.trading.client import TradingClient
+    from alpaca.trading.requests import MarketOrderRequest, LimitOrderRequest, BracketOrderRequest
+    from alpaca.trading.enums import OrderSide, TimeInForce, OrderClass
+    from alpaca.trading.models import Position, Order
+    _ALPACA_AVAILABLE = True
+except Exception:  # pragma: no cover - only hit in environments without alpaca-py
+    _ALPACA_AVAILABLE = False
+
+    class TimeFrame:  # minimal stub
+        Day = '1D'
+
+    class TimeFrameUnit:
+        Day = 'day'
+
+    class StockHistoricalDataClient:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def get_stock_bars(self, request):
+            return {}
+
+    class StockBarsRequest:  # type: ignore
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+    class StockDataStream:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def subscribe_bars(self, symbols):
+            return None
+
+        async def subscribe_quotes(self, symbols):
+            return None
+
+        async def _run_forever(self):
+            return None
+
+        async def close(self):
+            return None
+
+        def on_bar(self, func):
+            return func
+
+        def on_quote(self, func):
+            return func
+
+    class TradingClient:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def get_account(self):
+            class _Acct:
+                id = 'local'
+                equity = 100000.0
+                cash = 100000.0
+                buying_power = 200000.0
+                portfolio_value = 100000.0
+                day_trade_count = 0
+                pattern_day_trader = False
+            return _Acct()
+
+        def get_all_positions(self):
+            return []
+
+        def submit_order(self, *args, **kwargs):
+            class _Order:
+                id = 'local-order'
+                symbol = kwargs.get('symbol', 'SPY') if isinstance(kwargs, dict) else 'SPY'
+                qty = kwargs.get('qty', 1.0) if isinstance(kwargs, dict) else 1.0
+                side = 'buy'
+            return _Order()
+
+        def cancel_order_by_id(self, order_id):
+            return None
+
+        def get_all_orders(self, status=None):
+            return []
+
+    class MarketOrderRequest:  # type: ignore
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class LimitOrderRequest:  # type: ignore
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class BracketOrderRequest:  # type: ignore
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class Position:  # type: ignore
+        pass
+
+    class Order:  # type: ignore
+        pass
+
+    class OrderSide:  # type: ignore
+        BUY = 'buy'
+        SELL = 'sell'
+
+    class TimeInForce:  # type: ignore
+        DAY = 'day'
+
+    class OrderClass:  # type: ignore
+        BRACKET = 'bracket'
+
 from .config import Config
 
 class AlpacaDataClient:
@@ -21,7 +128,9 @@ class AlpacaDataClient:
     def __init__(self, api_key: str = None, secret_key: str = None):
         self.api_key = api_key or Config.ALPACA_API_KEY
         self.secret_key = secret_key or Config.ALPACA_SECRET_KEY
-        self.data_client = StockHistoricalDataClient(self.api_key, self.secret_key)
+        self.data_client = None
+        if _ALPACA_AVAILABLE and self.api_key and self.secret_key:
+            self.data_client = StockHistoricalDataClient(self.api_key, self.secret_key)
     
     def get_historical_bars(self, 
                           symbols: List[str], 
@@ -47,6 +156,32 @@ class AlpacaDataClient:
         if not end_date:
             end_date = datetime.now()
         
+        # If real client not available, generate local synthetic data
+        if not self.data_client:
+            rng = np.random.default_rng(42)
+            dataframes: Dict[str, pd.DataFrame] = {}
+            periods = max(2, min(1000, limit))
+            date_index = pd.date_range(start=start_date, end=end_date, periods=periods)
+            for symbol in symbols:
+                base = 100.0 + rng.normal(0, 1)
+                returns = rng.normal(0.0005, 0.02, size=len(date_index))
+                prices = base * np.cumprod(1 + returns)
+                highs = prices * (1 + np.abs(rng.normal(0.001, 0.01, size=len(date_index))))
+                lows = prices * (1 - np.abs(rng.normal(0.001, 0.01, size=len(date_index))))
+                opens = prices * (1 + rng.normal(0, 0.005, size=len(date_index)))
+                volumes = rng.integers(5e5, 2e6, size=len(date_index))
+                df = pd.DataFrame({
+                    'open': opens,
+                    'high': np.maximum.reduce([highs, opens, prices]),
+                    'low': np.minimum.reduce([lows, opens, prices]),
+                    'close': prices,
+                    'volume': volumes,
+                    'trade_count': rng.integers(500, 5000, size=len(date_index)),
+                    'vwap': prices
+                }, index=date_index)
+                dataframes[symbol] = df
+            return dataframes
+
         request_params = StockBarsRequest(
             symbol_or_symbols=symbols,
             timeframe=timeframe,
@@ -54,10 +189,10 @@ class AlpacaDataClient:
             end=end_date,
             limit=limit
         )
-        
+
         try:
             bars = self.data_client.get_stock_bars(request_params)
-            
+
             # Convert to pandas DataFrames
             dataframes = {}
             for symbol, bar_data in bars.items():
@@ -73,7 +208,7 @@ class AlpacaDataClient:
                 } for bar in bar_data])
                 df.set_index('timestamp', inplace=True)
                 dataframes[symbol] = df
-            
+
             return dataframes
         except Exception as e:
             print(f"Error fetching historical data: {e}")

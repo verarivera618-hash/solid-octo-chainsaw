@@ -1,5 +1,8 @@
 """
 Perplexity API client for financial data retrieval
+
+Local-first: when PERPLEXITY_API_KEY is missing, return deterministic stubbed content
+to enable fully local workflows without external subscriptions.
 """
 import requests
 import json
@@ -52,11 +55,19 @@ class PerplexityFinanceClient:
             "reasoning_effort": "high"
         }
         
+        if not self.api_key:
+            # Local stubbed content
+            content = (
+                f"Stubbed SEC analysis for {', '.join(tickers)} since {search_after_date}. "
+                "This is local-only content for development."
+            )
+            return {"choices": [{"message": {"content": content}}]}
+
         try:
             response = requests.post(self.base_url, headers=self.headers, json=payload)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Error fetching SEC filings: {e}")
             return {"error": str(e)}
     
@@ -95,11 +106,17 @@ class PerplexityFinanceClient:
             }
         }
         
+        if not self.api_key:
+            content = (
+                f"Stubbed market news and sentiment for {', '.join(tickers)} over last {hours_back} hours."
+            )
+            return {"choices": [{"message": {"content": content}}]}
+
         try:
             response = requests.post(self.base_url, headers=self.headers, json=payload)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Error fetching market news: {e}")
             return {"error": str(e)}
     
@@ -134,11 +151,15 @@ class PerplexityFinanceClient:
             }
         }
         
+        if not self.api_key:
+            content = f"Stubbed earnings analysis for {', '.join(tickers)}."
+            return {"choices": [{"message": {"content": content}}]}
+
         try:
             response = requests.post(self.base_url, headers=self.headers, json=payload)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Error fetching earnings analysis: {e}")
             return {"error": str(e)}
     
@@ -177,11 +198,15 @@ class PerplexityFinanceClient:
             }
         }
         
+        if not self.api_key:
+            content = f"Stubbed {timeframe} technical analysis for {', '.join(tickers)}."
+            return {"choices": [{"message": {"content": content}}]}
+
         try:
             response = requests.post(self.base_url, headers=self.headers, json=payload)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Error fetching technical analysis: {e}")
             return {"error": str(e)}
     
@@ -217,11 +242,15 @@ class PerplexityFinanceClient:
             }
         }
         
+        if not self.api_key:
+            content = f"Stubbed sector analysis for {sector}."
+            return {"choices": [{"message": {"content": content}}]}
+
         try:
             response = requests.post(self.base_url, headers=self.headers, json=payload)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             print(f"Error fetching sector analysis: {e}")
             return {"error": str(e)}
     

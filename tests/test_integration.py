@@ -26,7 +26,7 @@ class TestPerplexityAlpacaIntegration:
     @patch('src.perplexity_client.PerplexityFinanceClient.get_technical_analysis')
     @patch('src.perplexity_client.PerplexityFinanceClient.get_sector_analysis')
     @patch('src.alpaca_client.AlpacaDataClient.get_historical_bars')
-    @patch('src.prompt_generator.CursorPromptGenerator.save_prompt_to_file')
+    @patch('src.prompt_generator.LocalPromptGenerator.save_prompt_to_file')
     def test_analyze_and_generate_task_success(self, 
                                              mock_save_prompt,
                                              mock_get_bars,
@@ -64,7 +64,7 @@ class TestPerplexityAlpacaIntegration:
     @patch('src.perplexity_client.PerplexityFinanceClient.get_market_news_sentiment')
     @patch('src.perplexity_client.PerplexityFinanceClient.get_technical_analysis')
     @patch('src.alpaca_client.AlpacaDataClient.get_historical_bars')
-    @patch('src.prompt_generator.CursorPromptGenerator.save_prompt_to_file')
+    @patch('src.prompt_generator.LocalPromptGenerator.save_prompt_to_file')
     def test_quick_analysis_success(self, 
                                    mock_save_prompt,
                                    mock_get_bars,
@@ -103,15 +103,30 @@ class TestPerplexityAlpacaIntegration:
     def test_format_price_data(self):
         """Test price data formatting"""
         # Mock historical data
-        mock_df = Mock()
+        from unittest.mock import MagicMock
+        mock_df = MagicMock()
         mock_df.empty = False
-        mock_df.iloc = [Mock(), Mock()]
-        mock_df.iloc[0].__getitem__.return_value = 100.0  # oldest close
-        mock_df.iloc[-1].__getitem__.return_value = 110.0  # latest close
-        mock_df['high'].max.return_value = 115.0
-        mock_df['low'].min.return_value = 95.0
-        mock_df['close'].pct_change.return_value.std.return_value = 0.02
-        mock_df['volume'].mean.return_value = 1000000
+        # Use MagicMock for row items to support __getitem__
+        oldest_row = MagicMock()
+        latest_row = MagicMock()
+        oldest_row.__getitem__.return_value = 100.0  # oldest close
+        latest_row.__getitem__.return_value = 110.0  # latest close
+        mock_df.iloc = [oldest_row, latest_row]
+        # Provide series-like mocks via __getitem__
+        high_series = Mock(); high_series.max.return_value = 115.0
+        low_series = Mock(); low_series.min.return_value = 95.0
+        std_mock = Mock(); std_mock.return_value = 0.02
+        pct_change_mock = Mock(); pct_change_mock.return_value = std_mock
+        close_series = Mock(); close_series.pct_change.return_value = pct_change_mock
+        volume_series = Mock(); volume_series.mean.return_value = 1000000
+        def _getitem(key):
+            return {
+                'high': high_series,
+                'low': low_series,
+                'close': close_series,
+                'volume': volume_series,
+            }[key]
+        mock_df.__getitem__.side_effect = _getitem
         
         historical_data = {"AAPL": mock_df}
         

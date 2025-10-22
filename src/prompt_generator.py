@@ -1,6 +1,6 @@
 """
-Prompt generation layer for Cursor background agents
-Converts financial data into structured prompts for autonomous trading bot development
+Local prompt generation layer (no Cursor dependency)
+Converts financial data into structured implementation tasks for autonomous trading bot development
 """
 import os
 import json
@@ -8,11 +8,11 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 from .config import Config
 
-class CursorPromptGenerator:
-    """Generates structured prompts for Cursor background agents"""
+class LocalPromptGenerator:
+    """Generates structured prompts for local-only implementation workflows"""
     
     def __init__(self):
-        self.tasks_dir = Config.CURSOR_TASKS_DIR
+        self.tasks_dir = Config.TASKS_DIR
         os.makedirs(self.tasks_dir, exist_ok=True)
     
     def generate_trading_strategy_prompt(self, 
@@ -21,7 +21,7 @@ class CursorPromptGenerator:
                                        tickers: List[str],
                                        additional_context: str = "") -> str:
         """
-        Generate a comprehensive prompt for Cursor background agent to implement trading strategy
+        Generate a comprehensive, local-only implementation brief for a trading strategy
         
         Args:
             market_data: Dictionary containing all financial analysis data
@@ -30,7 +30,7 @@ class CursorPromptGenerator:
             additional_context: Any additional context or requirements
             
         Returns:
-            Formatted prompt string for Cursor agent
+            Formatted prompt string for a local developer/agent
         """
         
         # Extract data components
@@ -41,7 +41,7 @@ class CursorPromptGenerator:
         sector_analysis = market_data.get("sector", "No sector data available")
         price_data = market_data.get("price_data", "No price data available")
         
-        prompt = f"""# Advanced Trading Strategy Implementation Task
+        prompt = f"""# Advanced Trading Strategy Implementation Task (Local)
 
 ## 🎯 Mission
 Build a sophisticated Python trading bot on Alpaca's platform that implements a **{strategy_type}** strategy for {', '.join(tickers)} based on comprehensive financial analysis.
@@ -285,7 +285,7 @@ The implementation will be considered successful when:
 **Target Symbols**: {', '.join(tickers)}
 **Analysis Date**: {datetime.now().strftime("%Y-%m-%d")}
 
-This prompt provides comprehensive context for building a sophisticated trading system. The Cursor background agent should use this information to create a production-ready implementation that incorporates all the financial analysis and technical requirements specified above.
+This brief provides comprehensive context for building a sophisticated trading system locally. Implement the solution directly in this repository without requiring external IDE agents or subscriptions.
 """
 
         return prompt
@@ -293,7 +293,7 @@ This prompt provides comprehensive context for building a sophisticated trading 
     def save_prompt_to_file(self, prompt: str, strategy_name: str, 
                            tickers: List[str]) -> str:
         """
-        Save the generated prompt to a file for Cursor background agent
+        Save the generated prompt to a local file
         
         Args:
             prompt: The generated prompt string
@@ -310,7 +310,7 @@ This prompt provides comprehensive context for building a sophisticated trading 
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(prompt)
         
-        print(f"✅ Cursor prompt saved to: {filepath}")
+        print(f"✅ Local prompt saved to: {filepath}")
         return filepath
     
     def generate_quick_strategy_prompt(self, ticker: str, 
@@ -353,55 +353,19 @@ Generated: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 """
         return prompt
     
-    def create_cursor_agent_instructions(self) -> str:
-        """
-        Create instructions for setting up Cursor background agents
-        
-        Returns:
-            Instructions string
-        """
+    def create_local_instructions(self) -> str:
+        """Create instructions for local-only usage (no external IDE agents)."""
         instructions = f"""
-# Cursor Background Agent Setup Instructions
+# Local Usage Instructions (No External IDE Agents)
 
-## Prerequisites
-1. **Disable Privacy Mode** in Cursor settings
-2. **Enable usage-based spending** (minimum $10 funding)
-3. **Connect GitHub repository** with read-write privileges
-4. **Configure environment** with .cursor/environment.json
+## How to Use Generated prompts
+1. Open this repository locally.
+2. Navigate to `{os.path.abspath(self.tasks_dir)}/` and open the latest prompt file.
+3. Implement the described changes directly in the codebase.
 
-## How to Use Generated Prompts
-
-### Method 1: Manual Launch
-1. Open Cursor and press `Ctrl+Shift+B` (or `⌘B` on Mac)
-2. Click "New Background Agent"
-3. Copy the contents of the generated prompt file
-4. Paste into the agent prompt field
-5. The agent will create a new branch and implement the strategy
-
-### Method 2: GitHub Issues (Workaround)
-1. Create a new GitHub issue with the prompt content
-2. Use Linear integration to delegate to Cursor agent
-3. The agent will process the issue and implement the solution
-
-### Method 3: Direct File Integration
-1. Place prompt files in the `{self.tasks_dir}/` directory
-2. Use Cursor's file-based agent triggers (if available)
-3. Monitor the agent's progress through the Cursor interface
-
-## Generated Files Location
-All generated prompts are saved in: `{os.path.abspath(self.tasks_dir)}/`
-
-## Next Steps After Agent Completion
-1. Review the generated code
-2. Test the implementation with paper trading
-3. Validate strategy performance
-4. Deploy to live trading (if approved)
-5. Monitor and optimize performance
-
-## Troubleshooting
-- Ensure all API keys are properly configured
-- Check Cursor agent logs for any errors
-- Verify Alpaca API connectivity
-- Test with small position sizes initially
+## Notes
+- Keep all processing local; do not rely on subscription IDE agents.
+- Use environment variables for API keys. Avoid hardcoding secrets.
+- Prefer paper trading until explicitly approved for live trading.
 """
         return instructions

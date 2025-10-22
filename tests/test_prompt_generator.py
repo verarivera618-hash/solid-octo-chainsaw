@@ -11,16 +11,16 @@ import sys
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from src.prompt_generator import CursorPromptGenerator
+from src.prompt_generator import LocalPromptGenerator
 
-class TestCursorPromptGenerator:
-    """Test cases for CursorPromptGenerator"""
+class TestLocalPromptGenerator:
+    """Test cases for LocalPromptGenerator"""
     
     def setup_method(self):
         """Setup test fixtures"""
         # Create temporary directory for tests
         self.temp_dir = tempfile.mkdtemp()
-        self.generator = CursorPromptGenerator()
+        self.generator = LocalPromptGenerator()
         # Override tasks directory for testing
         self.generator.tasks_dir = self.temp_dir
     
@@ -106,15 +106,11 @@ class TestCursorPromptGenerator:
         assert "momentum" in prompt
         assert "Alpaca" in prompt
     
-    def test_create_cursor_agent_instructions(self):
-        """Test Cursor agent instructions generation"""
-        instructions = self.generator.create_cursor_agent_instructions()
-        
-        assert "Cursor Background Agent Setup Instructions" in instructions
-        assert "Ctrl+Shift+B" in instructions
-        assert "Privacy Mode" in instructions
-        assert "usage-based spending" in instructions
-        assert "GitHub repository" in instructions
+    def test_create_local_instructions(self):
+        """Test local-only instructions generation"""
+        instructions = self.generator.create_local_instructions()
+        assert "Local Usage Instructions" in instructions
+        assert "generated prompts" in instructions or "Generated prompts" in instructions
     
     def test_prompt_contains_required_sections(self):
         """Test that generated prompt contains all required sections"""

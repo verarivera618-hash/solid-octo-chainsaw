@@ -1,7 +1,11 @@
 """
-Configuration management for Perplexity-Alpaca Trading Integration
+Configuration management for Perplexity-Alpaca Trading Integration (local-first).
+
+Provides both a static `Config` class for API-related values and a simple
+`config` object exposing `trading` settings used across the codebase.
 """
 import os
+from dataclasses import dataclass
 from dotenv import load_dotenv
 from typing import Optional
 
@@ -27,7 +31,8 @@ class Config:
     RISK_TOLERANCE: float = float(os.getenv("RISK_TOLERANCE", "0.02"))
     
     # Data Configuration
-    CURSOR_TASKS_DIR: str = "cursor_tasks"
+    # Local task output directory for generated implementation tasks/prompts
+    TASKS_DIR: str = os.getenv("TASKS_DIR", "local_tasks")
     LOGS_DIR: str = "logs"
     DATA_DIR: str = "data"
     
@@ -54,3 +59,22 @@ class Config:
             "authorization": f"Bearer {cls.PERPLEXITY_API_KEY}",
             "content-type": "application/json"
         }
+
+
+# -------- Local-first Trading Settings (used by strategies) -------- #
+
+@dataclass
+class TradingSettings:
+    max_position_size: float = float(os.getenv("MAX_POSITION_SIZE", "0.1"))
+    risk_per_trade: float = float(os.getenv("RISK_PER_TRADE", "0.01"))
+    stop_loss_pct: float = float(os.getenv("STOP_LOSS_PCT", "0.02"))
+    take_profit_pct: float = float(os.getenv("TAKE_PROFIT_PCT", "0.05"))
+
+
+@dataclass
+class AppConfig:
+    trading: TradingSettings
+
+
+# Public config object used throughout the codebase
+config = AppConfig(trading=TradingSettings())
