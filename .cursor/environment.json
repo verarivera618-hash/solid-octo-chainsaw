@@ -7,3 +7,15 @@
     "PYTHONPATH": "${workspaceFolder}/src"
   }
 }
+  "install_commands": [
+    "pip install --upgrade pip",
+    "pip install -r requirements.txt"
+  ],
+  "terminal_commands": [
+    "python main.py --test"
+  ],
+  "environment_variables": {
+    "PYTHONPATH": "/workspace",
+    "TRADING_ENV": "paper"
+  }
+}
