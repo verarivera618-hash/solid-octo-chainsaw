@@ -1,7 +1,7 @@
 {
-  "name": "solid-octo-chainsaw",
-  "version": "1.0.0",
-  "description": "Advanced backtesting framework for trading strategy prediction and analysis",
+  "name": "local-trading-system",
+  "version": "2.0.0",
+  "description": "Local trading system with no external dependencies - fully copy-paste compatible",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
@@ -14,15 +14,18 @@
     "lint:fix": "eslint src/**/*.ts --fix",
     "format": "prettier --write src/**/*.ts",
     "start": "node dist/index.js",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "local-server": "python -m http.server 8000"
   },
   "keywords": [
-    "backtesting",
+    "local",
     "trading",
+    "simulation",
+    "backtesting",
     "finance",
     "strategy",
     "analysis",
-    "prediction"
+    "offline"
   ],
   "author": "",
   "license": "MIT",

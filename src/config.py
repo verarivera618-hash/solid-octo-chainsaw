@@ -1,56 +1,41 @@
 """
-Configuration management for Perplexity-Alpaca Trading Integration
+Configuration management for Local Trading System
+No external API dependencies required
 """
 import os
-from dotenv import load_dotenv
 from typing import Optional
+from .local_config import LocalConfig
 
-# Load environment variables
-load_dotenv()
-
-class Config:
-    """Configuration class for API keys and settings"""
+class Config(LocalConfig):
+    """Configuration class that inherits from LocalConfig for full local operation"""
     
-    # Perplexity API Configuration
-    PERPLEXITY_API_KEY: str = os.getenv("PERPLEXITY_API_KEY", "")
-    PERPLEXITY_BASE_URL: str = "https://api.perplexity.ai/chat/completions"
+    # Legacy compatibility - these are no longer required
+    PERPLEXITY_API_KEY: str = "LOCAL_MODE"
+    PERPLEXITY_BASE_URL: str = LocalConfig.LOCAL_ANALYSIS_ENDPOINT
     
-    # Alpaca Configuration
-    ALPACA_API_KEY: str = os.getenv("ALPACA_API_KEY", "")
-    ALPACA_SECRET_KEY: str = os.getenv("ALPACA_SECRET_KEY", "")
-    ALPACA_BASE_URL: str = os.getenv("ALPACA_BASE_URL", "https://paper-api.alpaca.markets")
+    # Legacy compatibility - these are no longer required  
+    ALPACA_API_KEY: str = "LOCAL_MODE"
+    ALPACA_SECRET_KEY: str = "LOCAL_MODE"
+    ALPACA_BASE_URL: str = LocalConfig.LOCAL_TRADING_ENDPOINT
     
-    # Trading Configuration
-    DEFAULT_STRATEGY: str = os.getenv("DEFAULT_STRATEGY", "semiconductor_momentum")
-    PAPER_TRADING: bool = os.getenv("PAPER_TRADING", "true").lower() == "true"
-    MAX_POSITION_SIZE: float = float(os.getenv("MAX_POSITION_SIZE", "0.1"))
-    RISK_TOLERANCE: float = float(os.getenv("RISK_TOLERANCE", "0.02"))
+    # Trading Configuration (inherited from LocalConfig)
+    DEFAULT_STRATEGY: str = LocalConfig.DEFAULT_STRATEGY
+    PAPER_TRADING: bool = LocalConfig.ENABLE_PAPER_TRADING
+    MAX_POSITION_SIZE: float = LocalConfig.MAX_POSITION_SIZE
+    RISK_TOLERANCE: float = LocalConfig.RISK_TOLERANCE
     
-    # Data Configuration
-    CURSOR_TASKS_DIR: str = "cursor_tasks"
-    LOGS_DIR: str = "logs"
-    DATA_DIR: str = "data"
+    # Data Configuration (inherited from LocalConfig)
+    CURSOR_TASKS_DIR: str = LocalConfig.CURSOR_TASKS_DIR
+    LOGS_DIR: str = LocalConfig.LOGS_DIR
+    DATA_DIR: str = LocalConfig.DATA_DIR
     
     @classmethod
     def validate_config(cls) -> bool:
-        """Validate that all required API keys are present"""
-        required_keys = [
-            cls.PERPLEXITY_API_KEY,
-            cls.ALPACA_API_KEY,
-            cls.ALPACA_SECRET_KEY
-        ]
-        
-        missing_keys = [key for key in required_keys if not key]
-        if missing_keys:
-            print(f"Missing required API keys: {missing_keys}")
-            return False
-        return True
+        """Validate local configuration - no API keys required"""
+        print("Running in LOCAL MODE - no external API keys required")
+        return LocalConfig.validate_config()
     
     @classmethod
     def get_perplexity_headers(cls) -> dict:
-        """Get headers for Perplexity API requests"""
-        return {
-            "accept": "application/json",
-            "authorization": f"Bearer {cls.PERPLEXITY_API_KEY}",
-            "content-type": "application/json"
-        }
+        """Get headers for local API requests"""
+        return LocalConfig.get_local_headers()
