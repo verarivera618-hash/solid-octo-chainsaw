@@ -157,12 +157,12 @@ async def example_3_trading_account_info():
         print(f"❌ Error getting account information: {e}")
         print("Make sure ALPACA_API_KEY and ALPACA_SECRET_KEY are set for paper trading")
 
-async def example_4_generate_cursor_prompt():
+async def example_4_generate_local_prompt():
     """
     Example 4: Generate Cursor background agent prompt.
     """
     print("\n" + "="*60)
-    print("EXAMPLE 4: Generate Cursor Background Agent Prompt")
+    print("EXAMPLE 4: Generate Local Prompt")
     print("="*60)
     
     try:
@@ -186,15 +186,13 @@ async def example_4_generate_cursor_prompt():
         result = prompt_generator.generate_complete_task(context)
         
         if result["success"]:
-            print(f"\n✅ Cursor prompt generated successfully!")
+            print(f"\n✅ Prompt generated successfully!")
             print(f"📁 Saved to: {result['prompt_file']}")
             print(f"📊 Market data sources: {len(result['market_data'])} analysis types")
             
-            print(f"\n🚀 Next Steps:")
-            print(f"1. Open Cursor IDE")
-            print(f"2. Press Ctrl+Shift+B (or ⌘B on Mac)")
-            print(f"3. Create new background agent")
-            print(f"4. Copy contents from: {result['prompt_file']}")
+            print(f"\n🚀 Next Steps (Local):")
+            print(f"1. Open the file under local_tasks/")
+            print(f"2. Copy content and implement described files under src/")
             
             # Show a preview of the generated prompt
             print(f"\n📋 Prompt Preview (first 500 chars):")
@@ -206,7 +204,7 @@ async def example_4_generate_cursor_prompt():
             print(f"❌ Prompt generation failed: {result['error']}")
         
     except Exception as e:
-        print(f"❌ Error generating Cursor prompt: {e}")
+        print(f"❌ Error generating prompt: {e}")
 
 async def example_5_comprehensive_analysis():
     """
@@ -330,7 +328,7 @@ async def main():
         await example_1_basic_market_analysis()
         await example_2_alpaca_data_integration()
         await example_3_trading_account_info()
-        await example_4_generate_cursor_prompt()
+        await example_4_generate_local_prompt()
         await example_5_comprehensive_analysis()
         
         print("\n" + "="*80)

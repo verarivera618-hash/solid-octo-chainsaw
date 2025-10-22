@@ -85,12 +85,12 @@ Before running examples, ensure you have:
 
 1. **API Keys configured** in `.env` file
 2. **Dependencies installed** (`pip install -r requirements.txt`)
-3. **Cursor IDE** with Background Agents enabled
+3. A local editor (VS Code, Vim, etc.)
 
 ## 📈 Generated Outputs
 
 Each example generates:
-- **Comprehensive prompts** for Cursor background agents
+- **Comprehensive prompts** for local implementation
 - **Structured market analysis** from Perplexity
 - **Technical indicators** and price data
 - **Risk management parameters**
@@ -100,11 +100,10 @@ Each example generates:
 
 After running examples:
 
-1. **Open Cursor** and press `Ctrl+Shift+B`
-2. **Click "New Background Agent"**
-3. **Copy the generated prompt** from `cursor_tasks/` directory
-4. **Paste into the agent prompt field**
-5. **The agent will implement** the complete trading strategy
+1. **Open the generated prompt** from `local_tasks/`
+2. **Copy its content** into your local editor
+3. **Implement** the files and logic described in `src/`
+4. **Run tests** with `pytest` and iterate locally
 
 ## ⚠️ Important Notes
 

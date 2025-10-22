@@ -1,21 +1,21 @@
-# Perplexity-Alpaca Trading Integration
+# Perplexity-Alpaca Trading Integration (Local-Only)
 
-A sophisticated system that integrates Perplexity's live finance data with Cursor Background Agents to automatically generate and implement trading strategies on Alpaca's platform.
+A sophisticated system that integrates Perplexity's live finance data and generates local prompts to implement trading strategies on Alpaca's platform—no external IDE subscriptions required.
 
 ## 🚀 Overview
 
 This system combines:
 - **Perplexity API** for real-time financial data, SEC filings, market sentiment, and technical analysis
-- **Cursor Background Agents** for autonomous trading bot development
+- **Local Prompt Generation** for copy/paste into your local editor
 - **Alpaca Trading API** for paper and live trading execution
 - **Comprehensive risk management** and portfolio optimization
 
 ## 🏗️ Architecture
 
 ```
-Perplexity API → Data Analysis → Prompt Generation → Cursor Agent → Trading Bot
-     ↓              ↓              ↓              ↓           ↓
-Financial Data → AI Analysis → Structured Prompt → Code Gen → Alpaca Trading
+Perplexity API → Data Analysis → Local Prompt Generation → Trading Bot
+     ↓              ↓                      ↓                  ↓
+Financial Data → AI Analysis → Structured Prompt → Alpaca Trading
 ```
 
 ## 📋 Features
@@ -34,8 +34,8 @@ Financial Data → AI Analysis → Structured Prompt → Code Gen → Alpaca Tra
 - **Portfolio Optimization**: Kelly Criterion and correlation-based sizing
 - **Backtesting Framework**: Historical strategy validation and performance analysis
 
-### Cursor Integration
-- **Automated Prompt Generation**: Context-rich prompts for background agents
+### Local Prompt Workflow
+- **Automated Prompt Generation**: Context-rich prompts saved under `local_tasks/`
 - **Structured Implementation**: Complete file structure and requirements
 - **Testing Framework**: Unit tests and validation procedures
 - **Documentation**: Comprehensive code documentation and examples
@@ -44,7 +44,6 @@ Financial Data → AI Analysis → Structured Prompt → Code Gen → Alpaca Tra
 
 ### Prerequisites
 - Python 3.11+
-- Cursor IDE with Background Agents enabled
 - Perplexity API key
 - Alpaca Trading API credentials
 
@@ -95,21 +94,9 @@ MAX_POSITION_SIZE=0.1  # 10% of portfolio per position
 RISK_TOLERANCE=0.02    # 2% stop loss
 ```
 
-### Cursor Configuration
+### Local Prompt Directory
 
-The `.cursor/environment.json` file is pre-configured for optimal background agent performance:
-
-```json
-{
-  "dockerfile": "Dockerfile",
-  "setup_script": "setup.sh",
-  "install_commands": ["pip install -r requirements.txt"],
-  "terminal_commands": ["python main.py --test"],
-  "environment_variables": {
-    "PYTHONPATH": "${workspaceFolder}/src"
-  }
-}
-```
+Generated prompts are saved under `local_tasks/`. Copy the content into your local editor and implement the described files.
 
 ## 🚀 Usage
 
@@ -171,17 +158,16 @@ prompt = integration.prompt_generator.generate_trading_strategy_prompt(
 )
 ```
 
-### Using Cursor Background Agents
+### Using Locally
 
-1. **Open Cursor** and press `Ctrl+Shift+B` (or `⌘B` on Mac)
-2. **Click "New Background Agent"**
-3. **Copy the contents** of the generated prompt file from `cursor_tasks/`
-4. **Paste into the agent prompt field**
-5. **The agent will create a new branch** and implement the strategy
+1. Open the generated prompt in `local_tasks/`
+2. Copy the content and implement the specified files in `src/`
+3. Run tests with `pytest`
+4. Paper trade only until fully validated
 
 ## 📊 Generated Trading Bots
 
-The Cursor background agents will generate complete trading systems with:
+You will implement complete trading systems with:
 
 ### Core Files
 - `config.py`: API configuration and settings
@@ -253,10 +239,9 @@ pytest --cov=src
 
 ## 🚨 Important Notes
 
-### Cursor Requirements
-- **Privacy Mode must be disabled** for background agents
-- **Usage-based spending enabled** (minimum $10 funding)
-- **GitHub repository connected** with read-write privileges
+### Local Workflow Notes
+- No external IDE or subscription required
+- Keep credentials in environment variables
 
 ### Trading Considerations
 - **Paper trading only** initially - no live trading without explicit approval
@@ -276,9 +261,7 @@ pytest --cov=src
 - [Market Data API](https://docs.alpaca.markets/docs/sdks-and-tools)
 - [WebSocket Streaming](https://alpaca.markets/learn/algorithmic-trading-python-alpaca)
 
-### Cursor Background Agents
-- [Background Agents Guide](https://lgallardo.com/2025/06/11/cursor-background-agents-experience/)
-- [Setup Instructions](https://madewithlove.com/blog/using-cursor-background-agents/)
+ 
 
 ## 🤝 Contributing
 
@@ -306,11 +289,10 @@ For issues and questions:
 
 ## 🔄 Updates
 
-### Version 1.0.0
-- Initial release with Perplexity-Alpaca integration
-- Cursor background agent support
-- Comprehensive testing framework
-- Complete documentation
+### Version 1.1.0
+- Removed Cursor dependencies; local-only prompt workflow
+- Retained core trading and analysis capabilities
+- Improved local docs and quickstart
 
 ---
 

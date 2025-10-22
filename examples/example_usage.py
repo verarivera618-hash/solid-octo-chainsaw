@@ -8,19 +8,19 @@ from datetime import datetime, timedelta
 from alpaca.data.timeframe import TimeFrame
 
 from src.perplexity_client import PerplexityFinanceClient
-from src.prompt_generator import PromptGenerator
+from src.prompt_generator import LocalPromptGenerator as PromptGenerator
 from src.data_handler import AlpacaDataHandler
 from src.executor import OrderExecutor
 from src.strategy import get_strategy
 
 
-def example_1_generate_cursor_prompt():
+def example_1_generate_local_prompt():
     """
-    Example 1: Generate a Cursor background agent prompt
-    This is the most common use case - analyze stocks and create prompts
+    Example 1: Generate a local prompt
+    Analyze stocks and create a local prompt for implementation
     """
     print("=" * 80)
-    print("EXAMPLE 1: Generate Cursor Background Agent Prompt")
+    print("EXAMPLE 1: Generate Local Prompt")
     print("=" * 80)
     
     # Initialize clients
@@ -47,7 +47,7 @@ def example_1_generate_cursor_prompt():
     print(f"   ✅ Retrieved data for {len(bars)} symbols")
     
     # Generate prompt
-    print("\n3. Generating Cursor prompt...")
+    print("\n3. Generating local prompt...")
     cursor_prompt = prompt_gen.generate_trading_strategy_prompt(
         news_insights=news_insights,
         price_data_summary=price_summary,
@@ -56,7 +56,7 @@ def example_1_generate_cursor_prompt():
     )
     
     print(f"\n✅ Prompt generated: {cursor_prompt.file_path}")
-    print("\nNext: Open Cursor, press Ctrl+Shift+B, and paste the prompt!")
+    print("\nNext: Open the file under local_tasks/, copy content, implement in src/.")
 
 
 def example_2_analyze_with_strategy():
@@ -263,8 +263,8 @@ def main():
     print("║" + " " * 20 + "PERPLEXITY-ALPACA EXAMPLES" + " " * 32 + "║")
     print("╚" + "=" * 78 + "╝")
     
-    # Example 1: Generate Cursor prompt (most common)
-    example_1_generate_cursor_prompt()
+    # Example 1: Generate local prompt (most common)
+    example_1_generate_local_prompt()
     
     # Example 2: Strategy analysis
     example_2_analyze_with_strategy()
@@ -283,7 +283,7 @@ def main():
     print("✅ All examples completed!")
     print("=" * 80)
     print("\nNext steps:")
-    print("1. Check generated prompts in cursor_tasks/")
+    print("1. Check generated prompts in local_tasks/")
     print("2. Run your own analysis with main.py")
     print("3. Customize strategies in src/strategy.py")
     print("=" * 80 + "\n")

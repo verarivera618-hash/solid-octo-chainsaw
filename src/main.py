@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from .config import Config
 from .perplexity_client import PerplexityFinanceClient
-from .prompt_generator import CursorPromptGenerator
+from .prompt_generator import LocalPromptGenerator as CursorPromptGenerator
 from .alpaca_client import AlpacaDataClient, AlpacaTradingClient
 
 class PerplexityAlpacaIntegration:
@@ -30,7 +30,7 @@ class PerplexityAlpacaIntegration:
                                  strategy_name: str,
                                  additional_context: str = "") -> str:
         """
-        Complete pipeline: Data → Analysis → Cursor Prompt
+        Complete pipeline: Data → Analysis → Local Prompt
         
         Args:
             tickers: List of stock symbols to analyze
@@ -87,8 +87,8 @@ class PerplexityAlpacaIntegration:
             "historical_data": historical_data
         }
         
-        # Step 6: Generate Cursor background agent prompt
-        print("🤖 Generating Cursor background agent prompt...")
+        # Step 6: Generate local prompt
+        print("🤖 Generating local prompt...")
         cursor_prompt = self.prompt_generator.generate_trading_strategy_prompt(
             market_data=market_data,
             strategy_type=strategy_name,
@@ -96,15 +96,15 @@ class PerplexityAlpacaIntegration:
             additional_context=additional_context
         )
         
-        # Step 7: Save prompt for Cursor agent
+        # Step 7: Save prompt locally
         prompt_file = self.prompt_generator.save_prompt_to_file(
             cursor_prompt, 
             strategy_name, 
             tickers
         )
         
-        print(f"\n✅ Analysis complete! Cursor prompt saved to: {prompt_file}")
-        self._print_next_steps()
+        print(f"\n✅ Analysis complete! Prompt saved to: {prompt_file}")
+        self._print_next_steps_local()
         
         return prompt_file
     
@@ -192,19 +192,15 @@ class PerplexityAlpacaIntegration:
         
         return "\n".join(summary)
     
-    def _print_next_steps(self):
-        """Print instructions for next steps"""
+    def _print_next_steps_local(self):
+        """Print local-only next steps"""
         print("\n" + "="*60)
-        print("🎯 NEXT STEPS:")
+        print("🎯 NEXT STEPS (Local):")
         print("="*60)
-        print("1. Open Cursor and press Ctrl+Shift+B (or ⌘B on Mac)")
-        print("2. Click 'New Background Agent'")
-        print("3. Copy the contents of the generated prompt file")
-        print("4. Paste into the agent prompt field")
-        print("5. The agent will create a new branch and implement the strategy")
-        print("\n📁 Generated files are in the 'cursor_tasks/' directory")
-        print("🔧 Make sure Privacy Mode is disabled in Cursor settings")
-        print("💰 Ensure you have usage-based spending enabled (min $10)")
+        print("1. Open the generated prompt file under 'local_tasks/'")
+        print("2. Copy its content and implement the described files in src/")
+        print("3. Use paper trading mode; do not execute live trades")
+        print("4. Run pytest and iterate locally")
         print("="*60)
     
     def get_account_status(self) -> Dict[str, Any]:

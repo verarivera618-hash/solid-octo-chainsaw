@@ -81,20 +81,14 @@ class PerplexityAlpacaIntegration:
     def _print_next_steps(self, prompt_file: str):
         """Print next steps for the user."""
         print("\n" + "="*60)
-        print("🚀 CURSOR BACKGROUND AGENT SETUP")
+        print("🚀 LOCAL PROMPT WORKFLOW")
         print("="*60)
-        print(f"✅ Cursor prompt saved to: {prompt_file}")
+        print(f"✅ Prompt saved to: {prompt_file}")
         print("\n📋 Next Steps:")
-        print("1. Open Cursor IDE")
-        print("2. Press Ctrl+Shift+B (or ⌘B on Mac) to open Background Agents")
-        print("3. Click 'New Background Agent'")
-        print(f"4. Copy the contents of '{prompt_file}' into the agent prompt")
-        print("5. The agent will create a new branch and implement the strategy")
-        print("\n⚠️  Important Notes:")
-        print("- Ensure Privacy Mode is disabled in Cursor settings")
-        print("- Make sure you have usage-based spending enabled (min $10)")
-        print("- The agent will use paper trading by default")
-        print("- Monitor the agent's progress in the Background Agents panel")
+        print("1. Open the prompt under local_tasks/")
+        print("2. Copy content and implement described files in src/")
+        print("3. Run tests locally with pytest")
+        print("4. Use Alpaca paper trading until validated")
         print("="*60)
     
     async def test_connections(self) -> Dict[str, bool]:

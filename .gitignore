@@ -50,9 +50,14 @@ htmlcov/
 .tox/
 
 # Generated prompts (optional - you may want to commit these)
+# Legacy (pre-local):
 cursor_tasks/*.md
 cursor_tasks/*.json
 !cursor_tasks/.gitkeep
+# Local-only directory:
+local_tasks/*.md
+local_tasks/*.json
+!local_tasks/.gitkeep
 
 # Jupyter
 .ipynb_checkpoints/

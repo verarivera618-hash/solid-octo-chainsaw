@@ -27,7 +27,8 @@ class Config:
     RISK_TOLERANCE: float = float(os.getenv("RISK_TOLERANCE", "0.02"))
     
     # Data Configuration
-    CURSOR_TASKS_DIR: str = "cursor_tasks"
+    # Use a neutral, local-only tasks directory to avoid any Cursor dependency
+    CURSOR_TASKS_DIR: str = "local_tasks"
     LOGS_DIR: str = "logs"
     DATA_DIR: str = "data"
     

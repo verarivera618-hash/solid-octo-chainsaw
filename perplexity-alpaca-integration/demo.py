@@ -21,12 +21,12 @@ def print_banner():
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║                    PERPLEXITY-ALPACA INTEGRATION DEMO                       ║
 ║                                                                              ║
-║  🤖 AI-Powered Trading Strategy Generation for Cursor Background Agents     ║
+║  🤖 AI-Powered Trading Strategy Generation (Local Workflow)                 ║
 ║                                                                              ║
 ║  This demo shows the complete workflow:                                      ║
 ║  1. Fetch real-time financial data from Perplexity                         ║
 ║  2. Analyze market conditions and fundamentals                              ║
-║  3. Generate comprehensive Cursor agent prompts                             ║
+║  3. Generate comprehensive local prompts                                    ║
 ║  4. Create autonomous trading bot implementations                           ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
     """)
@@ -131,7 +131,7 @@ async def demo_workflow():
             print("\n🔄 Using mock data for demonstration...")
             
             # Create a mock result
-            mock_file = f"cursor_tasks/demo_{strategy_config['strategy'].value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+            mock_file = f"local_tasks/demo_{strategy_config['strategy'].value}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
             
             # Generate the actual prompt (this will work even without API keys for the structure)
             try:
@@ -188,7 +188,7 @@ async def demo_workflow():
     print_section("Demo Summary", "📋")
     
     print(f"✅ Generated {len(generated_files)} trading strategies")
-    print(f"📁 Files created in cursor_tasks/ directory:")
+    print(f"📁 Files created in local_tasks/ directory:")
     
     for file_path in generated_files:
         if os.path.exists(file_path):
@@ -197,25 +197,19 @@ async def demo_workflow():
         else:
             print(f"   • {os.path.basename(file_path)} (demo file)")
     
-    print_section("Next Steps with Cursor", "🚀")
+    print_section("Next Steps (Local)", "🚀")
     
     print("""
-🎯 How to Use Generated Strategies with Cursor Background Agents:
+🎯 How to Use Generated Strategies Locally:
 
-1. 📂 Open Cursor IDE in your project directory
-2. ⌨️  Press Ctrl+Shift+B (or ⌘B on Mac) to open Background Agents panel
-3. ➕ Click "New Background Agent" 
-4. 📋 Copy contents from any generated file in cursor_tasks/
-5. 🤖 Let the agent autonomously implement your trading strategy!
-
-⚙️ Cursor Requirements:
-   • Privacy Mode must be DISABLED
-   • Usage-based spending enabled (minimum $10)
-   • GitHub repository with read-write access
+1. 📂 Open the generated files under local_tasks/
+2. 📝 Copy the content into your editor
+3. 🧩 Implement described files under src/
+4. 🧪 Run tests with pytest
 
 🔒 Safety Notes:
    • All strategies default to PAPER TRADING
-   • Review generated code before live deployment
+   • Review code before any live deployment
    • Start with small position sizes
    • Monitor performance closely
     """)
@@ -248,7 +242,7 @@ python main.py --help
 
 This system combines:
 • 🧠 Perplexity's real-time financial analysis
-• 🤖 Cursor's autonomous code generation
+• 🛠️ Local prompt-driven implementation
 • 📈 Alpaca's professional trading infrastructure
 
 Perfect for algorithmic traders who want AI-powered strategy development! 🚀

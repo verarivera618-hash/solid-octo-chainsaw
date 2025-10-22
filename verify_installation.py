@@ -65,10 +65,9 @@ def verify_installation():
     required_dirs = [
         'src',
         'tests',
-        'cursor_tasks',
+        'local_tasks',
         'logs',
-        'examples',
-        '.cursor'
+        'examples'
     ]
     
     dirs_ok = True

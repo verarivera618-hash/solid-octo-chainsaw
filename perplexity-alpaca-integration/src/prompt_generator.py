@@ -1,6 +1,6 @@
 """
-Prompt generation layer for Cursor background agents.
-Converts financial data into structured prompts for autonomous trading bot development.
+Local prompt generation layer.
+Converts financial data into structured prompts for local implementation without external IDEs.
 """
 import os
 import json
@@ -582,7 +582,7 @@ Strategy optimized for **{context.time_horizon}** trading:
     
     def save_prompt_for_cursor(self, prompt: str, strategy_name: str, tickers: List[str]) -> str:
         """
-        Save generated prompt to file for Cursor background agent.
+        Save generated prompt to file for local copy/paste workflow.
         
         Args:
             prompt: Generated prompt content
@@ -594,10 +594,10 @@ Strategy optimized for **{context.time_horizon}** trading:
         """
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         ticker_str = '_'.join(tickers)
-        filename = f"cursor_tasks/{strategy_name}_{ticker_str}_{timestamp}.md"
+        filename = f"local_tasks/{strategy_name}_{ticker_str}_{timestamp}.md"
         
         # Ensure directory exists
-        os.makedirs("cursor_tasks", exist_ok=True)
+        os.makedirs("local_tasks", exist_ok=True)
         
         # Add metadata header
         metadata = f"""---
@@ -615,7 +615,7 @@ generator: Perplexity-Alpaca Integration v1.0
             with open(filename, 'w', encoding='utf-8') as f:
                 f.write(full_content)
             
-            logger.info(f"Cursor prompt saved to: {filename}")
+            logger.info(f"Prompt saved to: {filename}")
             return filename
         
         except Exception as e:
