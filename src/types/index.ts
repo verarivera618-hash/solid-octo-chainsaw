@@ -25,9 +25,10 @@ export interface Trade {
 export interface Position {
   readonly symbol: string;
   readonly quantity: number;
-  readonly averagePrice: number;
+  readonly averagePrice?: number;
   readonly unrealizedPnL: number;
-  readonly realizedPnL: number;
+  readonly realizedPnL?: number;
+  readonly currentValue?: number;
 }
 
 export interface BacktestConfig {

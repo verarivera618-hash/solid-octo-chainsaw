@@ -3,7 +3,7 @@
  * Centralized configuration with environment-specific overrides
  */
 
-import { BacktestConfig } from '../types/index.js';
+import type { BacktestConfig } from '../types/index.js';
 
 export interface AppConfig {
   readonly database: {
@@ -22,16 +22,22 @@ export interface AppConfig {
     readonly level: 'debug' | 'info' | 'warn' | 'error';
     readonly file: string;
   };
+  readonly alpaca: {
+    readonly apiKey: string;
+    readonly secretKey: string;
+    readonly environment: 'paper' | 'live';
+    readonly enabled: boolean;
+  };
 }
 
 const defaultConfig: AppConfig = {
   database: {
-    url: process.env.DATABASE_URL || 'sqlite:./data/backtest.db',
+    url: process.env['DATABASE_URL'] || 'sqlite:./data/backtest.db',
     maxConnections: 10,
   },
   dataProviders: {
-    primary: 'yahoo',
-    fallback: ['alpha-vantage', 'polygon'],
+    primary: process.env['ALPACA_API_KEY'] ? 'alpaca' : 'yahoo',
+    fallback: ['alpha-vantage', 'polygon', 'yahoo'],
   },
   backtesting: {
     defaultConfig: {
@@ -45,8 +51,14 @@ const defaultConfig: AppConfig = {
     maxConcurrent: 4,
   },
   logging: {
-    level: (process.env.LOG_LEVEL as any) || 'info',
+    level: (process.env['LOG_LEVEL'] as any) || 'info',
     file: './logs/backtest.log',
+  },
+  alpaca: {
+    apiKey: process.env['ALPACA_API_KEY'] || '',
+    secretKey: process.env['ALPACA_SECRET_KEY'] || '',
+    environment: (process.env['ALPACA_ENVIRONMENT'] as 'paper' | 'live') || 'paper',
+    enabled: Boolean(process.env['ALPACA_API_KEY'] && process.env['ALPACA_SECRET_KEY']),
   },
 };
 

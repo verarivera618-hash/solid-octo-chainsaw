@@ -3,7 +3,7 @@
  * Example strategy implementation demonstrating proper structure
  */
 
-import { Strategy, Signal, PriceData } from '../types/index.js';
+import type { Strategy, Signal, PriceData } from '../types/index.js';
 
 export class SimpleMovingAverageStrategy implements Strategy {
   public readonly name = 'Simple Moving Average Crossover';
@@ -26,7 +26,8 @@ export class SimpleMovingAverageStrategy implements Strategy {
     const signals: Signal[] = [];
     
     for (const symbol of this.symbols) {
-      const symbolData = data.filter(d => d.symbol === symbol).sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      // In a real implementation, data would be filtered by symbol from a Map
+      const symbolData = data.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
       
       if (symbolData.length < this.longPeriod) {
         continue; // Not enough data

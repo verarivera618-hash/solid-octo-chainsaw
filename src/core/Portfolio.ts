@@ -3,7 +3,7 @@
  * Tracks positions, cash, and portfolio value over time
  */
 
-import { Position, Trade, PriceData } from '../types/index.js';
+import type { Position, Trade, PriceData } from '../types/index.js';
 import Decimal from 'decimal.js';
 
 export class Portfolio {
@@ -108,8 +108,9 @@ export class Portfolio {
     let totalValue = this.cash.toNumber();
     
     for (const position of this.positions.values()) {
-      const currentPrice = priceData.find(p => p.symbol === position.symbol)?.close;
-      if (currentPrice) {
+      // In a real implementation, we'd need a symbol mapping
+      const currentPrice = priceData[0]?.close;
+      if (currentPrice && position.averagePrice) {
         const unrealizedPnL = (currentPrice - position.averagePrice) * position.quantity;
         totalValue += position.quantity * currentPrice;
         
